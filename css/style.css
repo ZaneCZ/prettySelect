@@ -1,0 +1,13 @@
+html, body{
+    background-color: #f8f8f8;
+}
+.main{
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-width: 0 1px 1px;
+    padding: 60px 20px 20px
+}
+.page-header{
+    text-align: center;
+    font-weight: bold;
+}
