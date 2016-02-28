@@ -132,7 +132,11 @@
             var text = input.val();
             if (text != input.lastState)
             {
-                list.addClass("loading");
+                var debounce = settings.searchDebounce;
+                if(debounce > 250)
+                {
+                    list.addClass("loading");
+                }
                 input.lastState = text;
                 if (typeof input.timeout != 'undefined')
                 {
@@ -143,7 +147,7 @@
                     {
                         fillList(wrapper);
                     }
-                }, settings.searchDebounce);
+                }, debounce);
             }
         }
 
@@ -171,6 +175,7 @@
                 fillListFinish(wrapper, data.values);
                 list.removeClass("loading");
             } else {
+                list.addClass("loading");
                 $.when(settings.valuesHandler(wrapper, search)).then(function (response) {
                     fillListFinish(wrapper, response);
                     list.removeClass("loading");
