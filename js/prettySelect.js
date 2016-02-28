@@ -128,9 +128,11 @@
         function searchKeyUp(wrapper)
         {
             var input = wrapper.selectData.search;
+            var list = wrapper.selectData.list;
             var text = input.val();
             if (text != input.lastState)
             {
+                list.addClass("loading");
                 input.lastState = text;
                 if (typeof input.timeout != 'undefined')
                 {
@@ -167,8 +169,8 @@
             if (settings.valuesHandler == null)
             {
                 fillListFinish(wrapper, data.values);
+                list.removeClass("loading");
             } else {
-                list.addClass("loading");
                 $.when(settings.valuesHandler(wrapper, search)).then(function (response) {
                     fillListFinish(wrapper, response);
                     list.removeClass("loading");
