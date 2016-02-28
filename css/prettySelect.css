@@ -1,0 +1,115 @@
+.prettySelect{
+    padding: 4px;
+    float: left;
+    display: block;
+    height: auto;
+}
+
+.prettySelect.loading:before, .prettySelect .selectList.loading:before{
+    content: "Loading...";
+    color: #ccc;
+    font-weight: bold;
+    -moz-animation: loading 1s infinite linear;
+    -webkit-animation: loading 1s infinite linear;
+    margin: 4px;
+}
+
+@-moz-keyframes loading {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    };
+}
+
+@-webkit-keyframes loading {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.prettySelect .selectSearchWrap{
+    position: relative;
+    display: inline-block;
+}
+
+.prettySelect .selectSearch{
+    border: none;
+    box-shadow: none;
+    height: 100%;
+    width: 0;
+    margin-right: 4px;
+    transition: width 0.5s;
+}
+.prettySelect.focused .selectSearch{
+    width: 170px;
+}
+
+.prettySelect .selectSearch:focus{
+    outline-color: transparent !important;
+}
+
+.prettySelect .selectLabel {
+    float: left;
+    display: inline-block;
+    margin-right: 4px;
+    line-height: 20px;
+    cursor: pointer;
+}
+.prettySelect .selectLabel.unselected{
+    background-color: #ccc;
+}
+
+.prettySelect .selectLabel .close{
+    margin-left: 4px;
+    opacity: 0.5;
+}
+
+.prettySelect .selectList {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    min-width: 200px;
+    min-height: 30px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0 0 2px 2px;
+}
+
+.prettySelect .selectList .selectListItem{
+    cursor: pointer;
+}
+
+.prettySelect .selectList .selectListItem.selected{
+    background-color: #FF9;
+}
+
+.prettySelect .selectList .noItems{
+    display: none;
+    width: 100%;
+    height: 100%;
+    line-height: 30px;
+    color: #777;
+    text-align: center;
+    cursor: default;
+}
+
+.prettySelect .selectList .noItems:last-child{
+    display: block;
+}
