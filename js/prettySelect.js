@@ -133,9 +133,8 @@
             if (text != input.lastState)
             {
                 var debounce = settings.searchDebounce;
-                if(debounce > 500)
+                if(debounce > 300)
                 {
-                    alert("yo");
                     list.addClass("loading");
                 }
                 input.lastState = text;
