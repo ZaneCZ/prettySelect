@@ -1,5 +1,5 @@
 .prettySelect{
-    padding: 4px;
+    padding: 4px 4px 0;
     float: left;
     display: block;
     height: auto;
@@ -42,9 +42,14 @@
     }
 }
 
+.prettySelect .selectOptions{
+    display: inline;
+}
+
 .prettySelect .selectSearchWrap{
     position: relative;
     display: inline-block;
+    width: 188px;
 }
 
 .prettySelect .selectSearch{
@@ -57,6 +62,8 @@
 }
 .prettySelect.focused .selectSearch{
     width: 170px;
+    line-height: 20px;
+    margin-bottom: 4px;
 }
 
 .prettySelect .selectSearch:focus{
@@ -64,9 +71,9 @@
 }
 
 .prettySelect .selectLabel {
-    float: left;
     display: inline-block;
     margin-right: 4px;
+    margin-bottom: 4px;
     line-height: 20px;
     cursor: pointer;
 }

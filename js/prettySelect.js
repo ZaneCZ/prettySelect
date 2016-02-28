@@ -5,12 +5,13 @@
             action: "create",
             wrapperTemplate: "<div class='form-control'>",
             labelTemplate: "<span class='label label-primary'>",
-            listTemplate: "<div class='selectList'>",
-            listItemTemplate: "<div class='selectListItem'>",
+            listTemplate: "<div>",
+            listItemTemplate: "<div>",
             itemRemoveTemplate: "<span>&times;</span>",
             valuesHandler: null,
             listFilterHandler: filterList,
-            searchEnabled: true
+            searchEnabled: true,
+            searchDebounce: 100
         };
         if (typeof options == 'object')
         {
@@ -93,7 +94,7 @@
                         $(".selectLabel#s" + value, wrapper).removeClass("selected");
                     }
                 }
-                wrapper.append(label);
+                data.options.append(label);
                 if ($("option[value='" + value + "']", parent).length == 0)
                 {
                     var option = $("<option selected>");
@@ -140,7 +141,7 @@
                     {
                         fillList(wrapper);
                     }
-                }, 100);
+                }, settings.searchDebounce);
             }
         }
 
@@ -195,10 +196,11 @@
                 if ((!isSelected || !multiple) && matches)
                 {
                     var listItem = $(settings.listItemTemplate);
+                    listItem.addClass("selectListItem");
                     $(listItem).data('value', value);
                     $(listItem).data('text', text);
                     $(listItem).text(text);
-                    if (!multiple && isSelected)
+                    if (!multiple && value == selected)
                     {
                         $(listItem).addClass("selected");
                     }
@@ -210,6 +212,7 @@
         function filterList(search, text)
         {
             text = text.toLowerCase();
+            search = search.toLowerCase();
             if (search == "")
             {
                 return true;
@@ -219,7 +222,7 @@
             var len = search.length;
             for (var i = 0; i < len; i++)
             {
-                if (text.indexOf(search[i]) != -1)
+                if (search[i].trim() != "" && text.indexOf(search[i]) != -1)
                 {
                     matches = true;
                     break;
@@ -280,7 +283,7 @@
                 existsAny = true;
             }
         });
-        if (action == "values" || existsAny)
+        if (action == "options" || existsAny)
         {
             var values = [];
             this.each(function () {
@@ -313,6 +316,8 @@
                         $(this).css("display", "none");
                         var wrapper = $(settings.wrapperTemplate);
                         $(wrapper).addClass("prettySelect");
+                        var opts = $("<div class='selectOptions'>");
+                        wrapper.append(opts);
 
                         var stayFocused = false;
                         var listIsOpen = false;
@@ -336,6 +341,7 @@
 
                         wrapper.selectData = {
                             'parent': $(this),
+                            'options': opts,
                             'values': values,
                             'multiple': multiple
                         }
@@ -390,7 +396,9 @@
                                 }
                             });
 
-                            var list = $("<div class='selectList' style='display:none'>");
+                            var list = $(settings.listTemplate);
+                            list.addClass("selectList");
+                            list.css("display","none");
                             wrapper.selectData.list = $(list);
 
                             list.on("click", ".selectListItem:not(.selected)", function (e) {
