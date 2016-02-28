@@ -10,6 +10,7 @@
             itemRemoveTemplate: "<span>&times;</span>",
             valuesHandler: null,
             listFilterHandler: filterList,
+            customSearch: false,
             searchEnabled: true,
             searchDebounce: 100
         };
@@ -258,6 +259,10 @@
             if (settings.searchEnabled)
             {
                 select(wrapper, value);
+                if(!data.multiple)
+                {
+                    data.search.prop("placeholder",text);
+                }
             } else {
                 var parent = data.parent;
                 if (data.multiple)
@@ -337,13 +342,19 @@
                         var options = $("option", this);
                         var values = {};
                         var selected = [];
+                        var placeholder = "search";
                         options.each(function () {
                             var val = $(this).val();
+                            var text = $(this).text()
                             if ($(this).is(":selected"))
                             {
                                 selected.push(val);
+                                if(!multiple)
+                                {
+                                    placeholder = text;
+                                }
                             }
-                            values[val] = $(this).text();
+                            values[val] = text;
                         });
 
                         wrapper.selectData = {
@@ -375,9 +386,12 @@
 
                             if (multiple)
                             {
+                                wrapper.addClass("multiple");
                                 wrapper.on("dblclick", ".selectLabel", function () {
                                     unselect(wrapper, $(this));
                                 });
+                            }else{
+                                wrapper.addClass("simple");
                             }
 
                             wrapper.on("click", ".selectLabel .close", function () {
@@ -387,6 +401,7 @@
                             var searchWrap = $("<div class='selectSearchWrap'>");
 
                             var search = $("<input type='text' class='selectSearch'>");
+                            search.prop("placeholder",placeholder);
                             wrapper.selectData.search = $(search);
                             search.lastState = "";
 
@@ -428,10 +443,19 @@
                                 }
                                 stayFocused = false;
                             });
-
+                            
+                            var inputWrap = $(settings.labelTemplate);
+                            inputWrap.addClass("selectInputWrap");
+                            inputWrap.append(search);
+                            inputWrap.append($("<span class='glyphicon glyphicon-search'>"));
+                            
                             searchWrap.append(list);
-                            searchWrap.append(search);
-                            searchWrap.append($("<span class='glyphicon glyphicon-search'>"));
+                            if(settings.customSearch)
+                            {
+                                searchWrap.append(inputWrap.children());
+                            }else{
+                                searchWrap.append(inputWrap);
+                            }
 
                             wrapper.append(searchWrap);
 

@@ -52,25 +52,26 @@
     width: 188px;
 }
 
+.prettySelect.multiple .selectSearch{
+    transition: width 0.5s;
+}
 .prettySelect .selectSearch{
     border: none;
     box-shadow: none;
     height: 100%;
     width: 0;
-    margin-right: 4px;
-    transition: width 0.5s;
+    background-color: transparent;
 }
 .prettySelect.focused .selectSearch{
     width: 170px;
     line-height: 20px;
-    margin-bottom: 4px;
 }
 
 .prettySelect .selectSearch:focus{
     outline-color: transparent !important;
 }
 
-.prettySelect .selectLabel {
+.prettySelect .selectLabel, .prettySelect .selectSearchWrap .selectInputWrap{
     display: inline-block;
     margin-right: 4px;
     margin-bottom: 4px;
@@ -79,6 +80,9 @@
 }
 .prettySelect .selectLabel.unselected{
     background-color: #ccc;
+}
+.prettySelect.simple.focused .selectLabel{
+    display:none;
 }
 
 .prettySelect .selectLabel .close{

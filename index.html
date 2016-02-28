@@ -39,7 +39,8 @@
                     labelTemplate: "<div class='customLabel'>",
                     listTemplate: "<div class='customList'>",
                     listItemTemplate: "<div class='customListItem'>",
-                    itemRemoveTemplate: "<div class='customRemove'>"
+                    itemRemoveTemplate: "<div class='customRemove'>",
+                    customSearch: true
                 });
 
                 $(".nosearch").prettySelect({
@@ -140,6 +141,7 @@
     itemRemoveTemplate: &quot;&lt;span&gt;&amp;times;&lt;/span&gt;&quot;,
     searchEnabled: true,
     searchDebounce: 100,
+    customSearch: false,
     valuesHandler: null,
     listFilterHandler: filterList
 };
@@ -178,6 +180,10 @@
                         <div>
                             <h4>searchDebounce <small>[integer]</small></h4>
                             <p>It is highly recommended to set this above <code>0</code> if you load data through ajax.</p>
+                        </div>
+                        <div>
+                            <h4>customSearch <small>[boolean]</small></h4>
+                            <p>If set to <code>false<small> (default)</small></code>, searchbar inherits style of label.</p>
                         </div>
                         <div>
                             <h4>valuesHandler <small>[function(wrapper, searchText)]</small></h4>
@@ -244,7 +250,8 @@ var options = $("select").prettySelect({
     labelTemplate: &quot;&lt;div class='customLabel'&gt;&quot;,
     listTemplate: &quot;&lt;div class='customList'&gt;&quot;,
     listItemTemplate: &quot;&lt;div class='customListItem'&gt;&quot;,
-    itemRemoveTemplate: &quot;&lt;div class='customRemove'&gt;&quot;
+    itemRemoveTemplate: &quot;&lt;div class='customRemove'&gt;&quot;,
+    customSearch: true
 });
 </code></pre>
                             <select id="custom-template" multiple>
