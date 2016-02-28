@@ -26,6 +26,12 @@ h4{
     padding: 0;
 }
 
+.hp{
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 .customWrapper{
     width: 100%;
     border: 1px solid #eee;

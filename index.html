@@ -48,7 +48,8 @@
 
                 function customValues(wrapper, searchText) {
                     return $.getJSON("ajaxData.json");
-                };
+                }
+                ;
 
                 $("#customValues").prettySelect({
                     valuesHandler: customValues,
@@ -58,6 +59,19 @@
                     valuesHandler: customValues,
                     searchDebounce: 500,
                     searchEnabled: false
+                });
+
+                function customFilter(searchText, value)
+                {
+                    if (value.indexOf(searchText) != -1)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                $("#customFilter").prettySelect({
+                    listFilterHandler: customFilter,
+                    searchDebounce: 0
                 });
             });
         </script>
@@ -294,6 +308,81 @@ $("select").prettySelect({
                         <div class="col-sm-6">
                             <h3>Without search</h3>
                             <select id="customValuesNoSearch" multiple></select>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="container-fluid">
+                            <h2>PrettySelect with custom filter</h2>
+                            <pre><code class="language-javascript">function customFilter(searchText, value)
+{
+    if(value.indexOf(searchText) != -1)
+    {
+        return true;
+    }
+    return false;
+}
+
+$("select").prettySelect({
+    listFilterHandler: customFilter,
+    searchDebounce: 0
+});
+</code></pre>
+                            <h3><small>Custom case sensitive filter</small></h3>
+                            <select id="customFilter" multiple>
+                                <option value="html2" selected>Hypertext Markup Language</option>
+                                <option value="js2" selected>Javascript</option>
+                                <option value="css2">Cascading style sheet</option>
+                                <option value="php2">Hypertext Preprocessor</option>
+                                <option value="sql2">Structured Query Language</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="container-fluid">
+                            <h2>To-Do list <small>before v1.0</small></h2>
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <span class="hp label label-primary">High priority</span>
+                                    <h4>Optimisation</h4>
+                                    <p>I am not quite experienced with javascript, so there are possibly things that could be done better.</p>
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="hp label label-primary">High priority</span>
+                                    <h4>Optgroup, placeholder and disabled support</h4>
+                                </li>
+                                <li class="list-group-item">
+                                    <h4>Add button</h4>
+                                    <p>Add button will allow you to add new values in the select box. Pretty useful for administration part of your website.</p>
+                                </li>
+                                <li class="list-group-item">
+                                    <h4>Extended values</h4>
+                                    <p>Possibility of displaying wider amount of values than just text. (images, user info, links)</p>
+                                </li>
+                                <li class="list-group-item">
+                                    <h4>Order options</h4>
+                                    <p>Adding possibility to order options by any of their values.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="container-fluid">
+                            <h2>About</h2>
+                            <p class="lead">
+                                I am a 19 year old student from Czech Republic, who is trying to improve as much as possible.
+                                I am working on a personal project where I needed some way to load data through AJAX to selectbox but couldn't find anything online.
+                                Because of that I decided to create this and thought that other people might find this useful too.
+                            </p>
+                            <p class='lead'>
+                                Also I would be most thankful for any help, response or ideas of how to improve this.
+                            </p>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <hr>
+                        <div class='container-fluid'>
+                            Developed by "Zane" Loučka
                         </div>
                     </div>
                 </div>
