@@ -277,7 +277,15 @@ var options = $("select").prettySelect({
                         <div class="container-fluid">
                             <h2>PrettySelect with custom values<br>
                                 <small>(extreme debounce time)</small></h2>
+                            <pre><code class="language-javascript">function customValues(wrapper, searchText) {
+    return $.ajax(url);
+};
 
+$("select").prettySelect({
+    valuesHandler: customValues,
+    searchDebounce: 500
+});
+</code></pre>
                         </div>
                         <div class="col-sm-6">
                             <h3>With search</h3>
