@@ -61,6 +61,7 @@
     height: 100%;
     width: 0;
     background-color: transparent;
+    margin: -1px 0;
 }
 .prettySelect.focused .selectSearch{
     width: 170px;
