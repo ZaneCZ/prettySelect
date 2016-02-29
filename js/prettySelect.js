@@ -1,6 +1,6 @@
 (function ($) {
     $.fn.prettySelect = function (options) {
-
+        
         var settings = {
             action: "create",
             wrapperTemplate: "<div class='form-control'>",
@@ -14,12 +14,61 @@
             searchEnabled: true,
             searchDebounce: 100
         };
+        
         if (typeof options == 'object')
         {
             settings = $.extend(settings, options);
         } else {
             settings.action = options;
         }
+        
+        var prettySelect = function(select){
+            this.template = $("<div>");
+            this.wrapper = settings.wrapperTemplate;
+            this.selectBox = select;
+            this.values = {};
+            this.selected = {};
+            this.optionsList = new optionsList();
+            this.searchWrap = new searchWrap();
+            this.searchList = new searchList();
+            
+            return this;
+        };
+        
+        var optionsList = function(){
+            this.multiple = false;
+            this.showing = [];
+            this.labelTemplate = settings.labelTemplate;
+            
+            
+            return this;
+        };
+        
+        var searchWrap = function(){
+            this.searchbar = $("<input type='text' class='selectSearch'>");
+            
+            return this;
+        };
+        
+        var searchList = function(){
+            this.template = settings.listTemplate;
+            this.itemTemplate = settings.listItemTemplate;
+            
+            return this;
+        };
+        
+        searchList.prototype.filter = settings.listFilterHandler;
+        
+        prettySelect.prototype.addValues = function(values){
+            $.extend(this.values,values);
+        };
+        
+        prettySelect.prototype.select = function(selected){
+            for(var value in selected)
+            {
+                
+            }
+        };
 
         function render(wrapper, selected)
         {
