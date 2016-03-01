@@ -52,7 +52,18 @@
                     multipleValue();
                 });
 
+                var customTemplate = '\
+                <div class="WRAPPER">\
+                    <div class="OPTIONS"></div>\
+                </div>\
+                <div class="SEARCHLIST"></div>\
+                <div class="SEARCHWRAP">\
+                    <input class="SEARCH">\
+                    <span class="glyphicon glyphicon-search"></span>\
+                </div>';
+
                 $("#custom-template").prettySelect({
+                    template: customTemplate,
                     wrapperTemplate: "<div class='customWrapper'>",
                     labelTemplate: "<div class='customLabel'>",
                     listTemplate: "<div class='customList'>",
@@ -98,12 +109,11 @@
     <body>
         <div class="container main">
             <div class="page-header">
-                <h1 class="text-primary">Pretty Select v0.6 <small>by <a class='text-muted' href='http://zanecz.github.io/'>ZaneCZ</a></small></h1>
+                <h1 class="text-primary">Pretty Select v0.7 <small>by <a class='text-muted' href='http://zanecz.github.io/'>ZaneCZ</a></small></h1>
                 <div class='alert alert-danger'>
                     <h2>Work in progress | <small>Current tasks:</small></h2>
                     <ul class="text-left">
-                        <li>Remake into objects</li>
-                        <li>Add template property</li>
+                        <li><a href="#todoAddButton">Add "add" button.</a></li>
                     </ul>
                 </div>
             </div>
@@ -158,6 +168,7 @@
                         <div class="np col-md-6 col-xs-12 pull-right">
                             <pre><code class="language-javascript">var settings = {
     action: &quot;create&quot;,
+    template: defaultTemplate,
     wrapperTemplate: &quot;&lt;div class='form-control'&gt;&quot;,
     labelTemplate: &quot;&lt;span class='label label-primary'&gt;&quot;,
     listTemplate: &quot;&lt;div class='selectList'&gt;&quot;,
@@ -170,12 +181,26 @@
     listFilterHandler: filterList
 };
 </code></pre>
+                            <pre><code class="language-javascript">var defaultTemplate = &#39;\
+&lt;div class=&quot;WRAPPER&quot;&gt;\
+    &lt;div class=&quot;OPTIONS&quot;&gt;&lt;/div&gt;\
+    &lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
+    &lt;div class=&quot;SEARCHWRAP&quot;&gt;\
+        &lt;input class=&quot;SEARCH&quot;&gt;\
+        &lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;\
+    &lt;/div&gt;\
+&lt;/div&gt;&#39;;
+</code></pre>
                         </div>
                         <div>
-                            <h4>action <small>["create", "destroy" or "values"]</small></h4>
+                            <h4>action <small>["create", "destroy" or "options"]</small></h4>
                             <p><code>create</code> initiates prettySelect</p>
                             <p><code>destroy</code> destroys prettySelect object and shows original select box</p>
                             <p><code>options</code> returns list of all currently available options</p>
+                        </div>
+                        <div>
+                            <h4>template <small>[string]</small></h4>
+                            <p>A main template putting everytihng together. <a href="#customTemplate">[Example]</a></p>
                         </div>
                         <div>
                             <h4>wrapperTemplate <small>[html string or jQuery object]</small></h4>
@@ -207,7 +232,7 @@
                         </div>
                         <div>
                             <h4>customSearch <small>[boolean]</small></h4>
-                            <p>If set to <code>false<small> (default)</small></code>, searchbar inherits style of label.</p>
+                            <p>If set to <code>false <small>(default)</small></code>, searchbar wrapper inherits style of label.</p>
                         </div>
                         <div>
                             <h4>optionsHandler <small>[function(wrapper, searchText)]</small></h4>
@@ -281,9 +306,20 @@ var options = $("select").prettySelect({
                     <pre class="well well-sm" id="values"></pre>
                     <hr>
                     <div class="row">
-                        <div class="container-fluid">
+                        <div class="container-fluid" id="customTemplate">
                             <h2>PrettySelect with custom templates</h2>
+                            <pre><code class="language-javascript">var customTemplate = &#39;\
+&lt;div class=&quot;WRAPPER&quot;&gt;\
+    &lt;div class=&quot;OPTIONS&quot;&gt;&lt;/div&gt;\
+&lt;/div&gt;\
+&lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
+&lt;div class=&quot;SEARCHWRAP&quot;&gt;\
+    &lt;input class=&quot;SEARCH&quot;&gt;\
+    &lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;\
+&lt;/div&gt;&#39;;
+</code></pre>
                             <pre><code class="language-javascript">$(&quot;select&quot;).prettySelect({
+    template: customTemplate,
     wrapperTemplate: &quot;&lt;div class='customWrapper'&gt;&quot;,
     labelTemplate: &quot;&lt;div class='customLabel'&gt;&quot;,
     listTemplate: &quot;&lt;div class='customList'&gt;&quot;,
@@ -406,7 +442,7 @@ $("select").prettySelect({
                                     <h4>Optimisation</h4>
                                     <p>I am not quite experienced with javascript, so there are possibly things that could be done better.</p>
                                 </li>
-                                <li class="list-group-item">
+                                <li class="list-group-item" id="todoAddButton">
                                     <span class="hp label label-primary">High priority</span>
                                     <h4>Optgroup, placeholder and disabled support</h4>
                                 </li>

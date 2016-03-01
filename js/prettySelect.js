@@ -1,6 +1,9 @@
+//Copyright (c) 2016 ZaneCZ
+//Developed by ZaneCZ under MIT licence
+
 (function ($) {
     $.fn.prettySelect = function (options) {
-        var defaultTemplate = '<div class="WRAPPER"><div class="OPTIONS"></div><div class="selectSearchWrap"><div class="SEARCHLIST"></div><div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div></div></div>';
+        var defaultTemplate = '<div class="WRAPPER"><div class="OPTIONS"></div><div class="SEARCHLIST"></div><div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div></div>';
 
         var settings = {
             action: "create",
@@ -32,20 +35,25 @@
 
             if (prettySelect.multiple)
             {
-                $(this.template).on("click", ".selectLabel.selected", function () {
-                    prettySelect.unselect($(this));
-                });
-
                 $(this.template).on("click", ".selectLabel .close", function () {
                     prettySelect.unselect($(this).closest(".selectLabel"));
                 });
             }
-            $(this.template).on("click", ".selectOptions .selectLabel.unselected", function () {
+
+            if (prettySelect.multiple || prettySelect.allowDeselect)
+            {
+                $(this.template).on("click", ".selectLabel.selected", function () {
+                    prettySelect.unselect($(this));
+                });
+            }
+
+            $(this.template).on("click", ".selectLabel.unselected", function () {
                 prettySelect.selectItem($(this));
             });
 
             return this;
-        };
+        }
+        ;
 
         optionsList.prototype.render = function () {
             var prettySelect = this.prettySelect;
@@ -377,13 +385,19 @@
                 var tempSearchList = $(".SEARCHLIST", template);
                 var searchList = this.searchList.template;
                 searchList.addClass("selectList");
-                searchList.html(tempSearchList.html());
+                searchList.html(tempSearchList.children());
                 tempSearchList.replaceWith(searchList);
 
                 var tempSearchWrap = $(".SEARCHWRAP", template);
-                var searchWrap = $(this.optionsList.labelTemplate);
+                var searchWrap;
+                if (settings.customSearch)
+                {
+                    searchWrap = $("<div>");
+                } else {
+                    searchWrap = $(this.optionsList.labelTemplate);
+                }
                 searchWrap.addClass("searchWrap");
-                searchWrap.html(tempSearchWrap.html());
+                searchWrap.html(tempSearchWrap.children());
                 tempSearchWrap.replaceWith(searchWrap);
 
                 var tempSearchbar = $(".SEARCH", template);
@@ -422,9 +436,6 @@
             if (this.multiple)
             {
                 el.addClass("multiple");
-                $(el).on("dblclick", ".selectLabel", function () {
-                    prettySelect.unselect($(this));
-                });
             } else {
                 el.addClass("simple");
             }
@@ -488,7 +499,7 @@
                 switch (action) {
                     case "destroy":
                     {
-                        if(exists(this))
+                        if (exists(this))
                         {
                             var object = this.psData;
                             $(this).css("display", null);
