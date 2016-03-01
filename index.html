@@ -183,16 +183,6 @@
     showAll: false
 };
 </code></pre>
-                            <pre><code class="language-javascript">var defaultTemplate = &#39;\
-&lt;div class=&quot;WRAPPER&quot;&gt;\
-    &lt;div class=&quot;OPTIONS&quot;&gt;&lt;/div&gt;\
-    &lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
-    &lt;div class=&quot;SEARCHWRAP&quot;&gt;\
-        &lt;input class=&quot;SEARCH&quot;&gt;\
-        &lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;\
-    &lt;/div&gt;\
-&lt;/div&gt;&#39;;
-</code></pre>
                         </div>
                         <div>
                             <h4>action <small>["create", "destroy" or "options"]</small></h4>
@@ -201,16 +191,8 @@
                             <p><code>options</code> returns list of all currently available options</p>
                         </div>
                         <div>
-                            <h4>template <small>[string]</small></h4>
+                            <h4><a href="#templateExplanation">template</a> <small>[string]</small></h4>
                             <p>A main template putting everytihng together. <a href="#customTemplate">[Example]</a></p>
-                            <ul class="list-group">
-                                <li class="list-group-item">.WRAPPER = settings.wrapperTemplate</li>
-                                <li class="list-group-item">.OPTIONS = options wrapper <br><small>(contains settings.labelTemplate)</small></li>
-                                <li class="list-group-item">.SEARCHLIST = settings.listTemplate</li>
-                                <li class="list-group-item">.SEARCHWRAP = this element inherits style of settings.labelTemplate if <code>customSearch : false</code></li>
-                                <li class="list-group-item">.SEARCH = searchbar gets implemented here if <code>searchEnabled : true</code></li>
-                                <li class="list-group-item list-group-item-warning">template does not require any of these</li>
-                            </ul>
                         </div>
                         <div>
                             <h4>wrapperTemplate <small>[html string or jQuery object]</small></h4>
@@ -276,6 +258,35 @@
                             <script>
             (adsbygoogle = window.adsbygoogle || []).push({});
                             </script>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="container-fluid">
+                            <h2 id="templateExplanation">Template explanation</h2>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">.WRAPPER = settings.wrapperTemplate</li>
+                                        <li class="list-group-item">.OPTIONS = options wrapper <br><small>(contains settings.labelTemplate)</small></li>
+                                        <li class="list-group-item">.SEARCHLIST = settings.listTemplate</li>
+                                        <li class="list-group-item">.SEARCHWRAP = this element inherits style of settings.labelTemplate if <code>customSearch : false</code></li>
+                                        <li class="list-group-item">.SEARCH = searchbar gets implemented here if <code>searchEnabled : true</code></li>
+                                        <li class="list-group-item list-group-item-warning">template does not require any of these</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <pre><code class="language-javascript">var defaultTemplate = &#39;\
+&lt;div class=&quot;WRAPPER&quot;&gt;\
+    &lt;div class=&quot;OPTIONS&quot;&gt;&lt;/div&gt;\
+    &lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
+    &lt;div class=&quot;SEARCHWRAP&quot;&gt;\
+        &lt;input class=&quot;SEARCH&quot;&gt;\
+        &lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;\
+    &lt;/div&gt;\
+&lt;/div&gt;&#39;;
+</code></pre>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <hr>
