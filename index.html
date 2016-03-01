@@ -184,13 +184,13 @@
 };
 </code></pre>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>action <small>["create", "destroy" or "options"]</small></h4>
                             <p><code>create</code> initiates prettySelect</p>
                             <p><code>destroy</code> destroys prettySelect object and shows original select box</p>
                             <p><code>options</code> returns list of all currently available options</p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4><a href="#templateExplanation">template</a> <small>[string]</small></h4>
                             <p>A main template putting everytihng together. <a href="#customTemplate">[Example]</a></p>
                         </div>
@@ -198,49 +198,49 @@
                             <h4>wrapperTemplate <small>[html string or jQuery object]</small></h4>
                             <p>has class <code>prettySelect</code></p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>labelTemplate <small>[html string or jQuery object]</small></h4>
                             <p>has class <code>selectLabel</code></p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>listTemplate <small>[html string or jQuery object]</small></h4>
                             <p>has class <code>selectList</code></p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>listItemTemplate <small>[html string or jQuery object]</small></h4>
                             <p>has class <code>selectListItem</code></p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>itemRemoveTemplate <small>[html string or jQuery object]</small></h4>
                             <p>has class <code>close</code></p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>searchEnabled <small>[boolean]</small></h4>
                             <p>If set to <code>true</code>, search bar is shown, else all available options are shown.</p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>searchDebounce <small>[integer]</small></h4>
                             <p>It is highly recommended to set this above <code>0</code> if you load data through ajax.</p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>customSearch <small>[boolean]</small></h4>
                             <p>If set to <code>false <small>(default)</small></code>, searchbar wrapper inherits style of label.</p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>optionsHandler <small>[function(searchText)]</small></h4>
                             <p>searchText is searchbar content.
                                 This function should return object in format <code>{value:text}</code>. It is possible to load options through AJAX.</p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>listFilterHandler <small>[function(searchText, value)]</small></h4>
                             <p>First argument is content of searchbar, second argument is value of possible options.
                                 Value gets shown in option list if filter function returns <code>true</code>.</p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>allowDeselect <small>[boolean]</small></h4>
                             <p>If set to <code>true</code>, it is possible to deselect values in simple select boxes. <small>Does not affect multiple select</small></p>
                         </div>
-                        <div>
+                        <div class="expl">
                             <h4>showAll <small>[boolean]</small></h4>
                             <p>If set to <code>true</code>, all options get shown, instead of just active ones. At the moment same as setting <code>searchEnabled</code> to <code>false</code>.</p>
                             <p><small>In the future it will be possible to use <code>showAll</code> together with <a href="#todoAddButton"><code>addButton</code></a>.</small></p>
@@ -260,6 +260,7 @@
                             </script>
                         </div>
                     </div>
+                    <hr>
                     <div class="row">
                         <div class="container-fluid">
                             <h2 id="templateExplanation">Template explanation</h2>
@@ -507,7 +508,7 @@ $("select").prettySelect({
                     <div class='row'>
                         <hr>
                         <div class='container-fluid'>
-                            Developed by "Zane" Loučka
+                            Developed by <a href="http://zanecz.github.io/">"Zane" Loučka</a>
                         </div>
                     </div>
                 </div>

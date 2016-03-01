@@ -1,6 +1,7 @@
 html, body{
     background-color: #f8f8f8;
     font-size: 16px;
+    line-height: 16px;
 }
 .main{
     background-color: #fff;
@@ -18,8 +19,12 @@ select{
     width: 100%;
 }
 
-h4{
-    color: #8A2BE2;
+.expl{
+    background-color: #eee;
+    padding: 4px;
+}
+.expl:nth-child(2n+1){
+    background-color: #fff;
 }
 
 .np{
