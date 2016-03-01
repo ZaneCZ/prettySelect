@@ -17,7 +17,9 @@
             listFilterHandler: filterList,
             customSearch: false,
             searchEnabled: true,
-            searchDebounce: 150
+            searchDebounce: 150,
+            allowDeselect: false,
+            showAll: false
         };
 
         if (typeof options == 'object')
@@ -33,21 +35,30 @@
             this.template = $("<div class='selectOptions'>");
             this.labelTemplate = settings.labelTemplate;
 
-            if (prettySelect.multiple)
+            
+            if(prettySelect.allowDisabled || prettySelect.multiple)
             {
-                $(this.template).on("click", ".selectLabel .close", function () {
+                $(this.template).on("click", ".selectLabel .close", function (e) {
+                    e.preventDefault()
                     prettySelect.unselect($(this).closest(".selectLabel"));
                 });
             }
-
-            if (prettySelect.multiple || prettySelect.allowDeselect)
+            
+            if ((!prettySelect.multiple && prettySelect.allowDeselect) || (prettySelect.multiple && !prettySelect.searchEnabled))
             {
-                $(this.template).on("click", ".selectLabel.selected", function () {
+                $(this.template).on("click", ".selectLabel.selected", function (e) {
+                    e.preventDefault()
+                    prettySelect.unselect($(this));
+                });
+                
+                $(this.template).on("dblclick", ".selectLabel.selected", function (e) {
+                    e.preventDefault()
                     prettySelect.unselect($(this));
                 });
             }
 
-            $(this.template).on("click", ".selectLabel.unselected", function () {
+            $(this.template).on("click", ".selectLabel.unselected", function (e) {
+                e.preventDefault()
                 prettySelect.selectItem($(this));
             });
 
@@ -83,7 +94,8 @@
                     label.addClass('selected');
                 }
 
-                if (prettySelect.multiple && !prettySelect.showAll && prettySelect.searchEnabled)
+                if (((prettySelect.multiple && !prettySelect.showAll) || 
+                        (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled)
                 {
                     label.append($(settings.itemRemoveTemplate).addClass("close"));
                 } else {
@@ -249,7 +261,8 @@
             this.optionsHandler = settings.optionsHandler;
 
             this.searchEnabled = settings.searchEnabled;
-            this.showAll = false;
+            this.showAll = settings.showAll;
+            this.allowDeselect = settings.allowDeselect;
 
             this.element = $("<div class='prettySelect'>");
             this.template = $(settings.template);
@@ -293,10 +306,14 @@
                 var text = values[value];
                 label.addClass('selectLabel').addClass('selected');
                 label.val(value).text(text).attr('id', 's' + value)
-                if (this.multiple)
+                if (((this.multiple && !this.showAll) || 
+                        (!this.multiple && this.allowDeselect)) && this.searchEnabled)
                 {
                     label.append($(settings.itemRemoveTemplate).addClass("close"));
-                } else {
+                    this.searchWrap.setPlaceholder("search");
+                }
+                if (!this.multiple)
+                {
                     if (search)
                     {
                         $(".selectLabel", optionsList.template).remove();
@@ -329,6 +346,10 @@
                 this.selected.splice(pos, 1);
             }
             $('option[value="' + value + '"]', parent).prop("selected", false);
+            if(!this.multiple)
+            {
+                parent.val(null);
+            }
             if (this.searchEnabled)
             {
                 item.remove();

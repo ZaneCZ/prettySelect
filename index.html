@@ -73,7 +73,7 @@
                 });
 
                 $(".nosearch").prettySelect({
-                    searchEnabled: false
+                    searchEnabled: false,
                 });
 
                 function customValues(searchText) {
@@ -175,10 +175,12 @@
     listItemTemplate: &quot;&lt;div&gt;&quot;,
     itemRemoveTemplate: &quot;&lt;span&gt;&amp;times;&lt;/span&gt;&quot;,
     searchEnabled: true,
-    searchDebounce: 100,
+    searchDebounce: 150,
     customSearch: false,
     optionsHandler: null,
-    listFilterHandler: filterList
+    listFilterHandler: filterList,
+    allowDeselect: false,
+    showAll: false
 };
 </code></pre>
                             <pre><code class="language-javascript">var defaultTemplate = &#39;\
@@ -201,6 +203,14 @@
                         <div>
                             <h4>template <small>[string]</small></h4>
                             <p>A main template putting everytihng together. <a href="#customTemplate">[Example]</a></p>
+                            <ul class="list-group">
+                                <li class="list-group-item">.WRAPPER = settings.wrapperTemplate</li>
+                                <li class="list-group-item">.OPTIONS = options wrapper <br><small>(contains settings.labelTemplate)</small></li>
+                                <li class="list-group-item">.SEARCHLIST = settings.listTemplate</li>
+                                <li class="list-group-item">.SEARCHWRAP = this element inherits style of settings.labelTemplate if <code>customSearch : false</code></li>
+                                <li class="list-group-item">.SEARCH = searchbar gets implemented here if <code>searchEnabled : true</code></li>
+                                <li class="list-group-item list-group-item-warning">template does not require any of these</li>
+                            </ul>
                         </div>
                         <div>
                             <h4>wrapperTemplate <small>[html string or jQuery object]</small></h4>
@@ -235,14 +245,23 @@
                             <p>If set to <code>false <small>(default)</small></code>, searchbar wrapper inherits style of label.</p>
                         </div>
                         <div>
-                            <h4>optionsHandler <small>[function(wrapper, searchText)]</small></h4>
-                            <p>First argument is main object of prettySelect, second argument is content of searchbar.
-                                This function should return object in format <code>{value:text}</code>. It is possible to load values through AJAX.</p>
+                            <h4>optionsHandler <small>[function(searchText)]</small></h4>
+                            <p>searchText is searchbar content.
+                                This function should return object in format <code>{value:text}</code>. It is possible to load options through AJAX.</p>
                         </div>
                         <div>
                             <h4>listFilterHandler <small>[function(searchText, value)]</small></h4>
                             <p>First argument is content of searchbar, second argument is value of possible options.
                                 Value gets shown in option list if filter function returns <code>true</code>.</p>
+                        </div>
+                        <div>
+                            <h4>allowDeselect <small>[boolean]</small></h4>
+                            <p>If set to <code>true</code>, it is possible to deselect values in simple select boxes. <small>Does not affect multiple select</small></p>
+                        </div>
+                        <div>
+                            <h4>showAll <small>[boolean]</small></h4>
+                            <p>If set to <code>true</code>, all options get shown, instead of just active ones. At the moment same as setting <code>searchEnabled</code> to <code>false</code>.</p>
+                            <p><small>In the future it will be possible to use <code>showAll</code> together with <a href="#todoAddButton"><code>addButton</code></a>.</small></p>
                         </div>
                     </div>
                     <div class="row ad">
@@ -444,7 +463,7 @@ $("select").prettySelect({
                                 </li>
                                 <li class="list-group-item" id="todoAddButton">
                                     <span class="hp label label-primary">High priority</span>
-                                    <h4>Optgroup, placeholder and disabled support</h4>
+                                    <h4>Optgroup and disabled support</h4>
                                 </li>
                                 <li class="list-group-item">
                                     <h4>Add button</h4>
