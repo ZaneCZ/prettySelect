@@ -1,11 +1,18 @@
 .prettySelect{
-    padding: 4px;
+    display: block;
+    float: left;
+    width: 100%;
+    position: relative;
+}
+
+.prettySelect .selectWrapper{
+    padding: 4px 4px 0;
     float: left;
     display: block;
     height: auto;
 }
 
-.prettySelect.loading:before, .prettySelect .selectList.loading:before{
+.prettySelect.loading .selectWrapper:before, .prettySelect .selectWrapper .selectList.loading:before{
     content: "Loading...";
     color: #ccc;
     font-weight: bold;
@@ -42,40 +49,51 @@
     }
 }
 
-.prettySelect .selectSearchWrap{
-    position: relative;
-    display: inline-block;
+.prettySelect .selectWrapper .selectOptions{
+    display: inline;
 }
 
-.prettySelect .selectSearch{
+.prettySelect .selectWrapper .searchWrap{
+    position: relative;
+}
+
+.prettySelect.multiple .selectWrapper .selectSearch{
+    transition: width 0.5s;
+}
+.prettySelect .selectWrapper .selectSearch{
     border: none;
     box-shadow: none;
     height: 100%;
     width: 0;
-    margin-right: 4px;
-    transition: width 0.5s;
+    background-color: transparent;
+    margin: -1px 0;
 }
-.prettySelect.focused .selectSearch{
+.prettySelect.focused .selectWrapper .selectSearch{
     width: 170px;
+    line-height: 20px;
 }
 
-.prettySelect .selectSearch:focus{
+.prettySelect .selectWrapper .selectSearch:focus{
     outline-color: transparent !important;
 }
 
-.prettySelect .selectLabel {
-    float: left;
+.prettySelect .selectWrapper .selectLabel, .prettySelect .selectWrapper .searchWrap{
     display: inline-block;
     margin-right: 4px;
+    margin-bottom: 4px;
     line-height: 20px;
     cursor: pointer;
 }
-.prettySelect .selectLabel.unselected{
+.prettySelect .selectWrapper .selectLabel.unselected{
     background-color: #ccc;
 }
+.prettySelect.simple.focused .selectWrapper .selectLabel{
+    display:none;
+}
 
-.prettySelect .selectLabel .close{
+.prettySelect .selectWrapper .selectLabel .close{
     margin-left: 4px;
+    font-size: 20px;
     opacity: 0.5;
 }
 
@@ -87,20 +105,27 @@
     z-index: 1000;
     min-width: 200px;
     min-height: 30px;
+    color: #333;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 0 0 2px 2px;
 }
+.prettySelect .selectWrapper .selectList{
+    display: none;
+}
+.prettySelect.focused .selectWrapper .selectList{
+    display: block;
+}
 
-.prettySelect .selectList .selectListItem{
+.prettySelect .selectWrapper .selectList .selectListItem{
     cursor: pointer;
 }
 
-.prettySelect .selectList .selectListItem.selected{
+.prettySelect .selectWrapper .selectList .selectListItem.selected{
     background-color: #FF9;
 }
 
-.prettySelect .selectList .noItems{
+.prettySelect .selectWrapper .selectList .noItems{
     display: none;
     width: 100%;
     height: 100%;
@@ -110,6 +135,6 @@
     cursor: default;
 }
 
-.prettySelect .selectList .noItems:last-child{
+.prettySelect .selectWrapper .selectList .noItems:last-child{
     display: block;
 }
