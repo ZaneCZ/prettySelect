@@ -65,17 +65,17 @@
                     searchEnabled: false
                 });
 
-                function customValues(wrapper, searchText) {
+                function customValues(searchText) {
                     return $.getJSON("ajaxData.json");
                 }
                 ;
 
                 $("#customValues").prettySelect({
-                    valuesHandler: customValues,
+                    optionsHandler: customValues,
                     searchDebounce: 500
                 });
                 $("#customValuesNoSearch").prettySelect({
-                    valuesHandler: customValues,
+                    optionsHandler: customValues,
                     searchDebounce: 500,
                     searchEnabled: false
                 });
@@ -166,7 +166,7 @@
     searchEnabled: true,
     searchDebounce: 100,
     customSearch: false,
-    valuesHandler: null,
+    optionsHandler: null,
     listFilterHandler: filterList
 };
 </code></pre>
@@ -210,7 +210,7 @@
                             <p>If set to <code>false<small> (default)</small></code>, searchbar inherits style of label.</p>
                         </div>
                         <div>
-                            <h4>valuesHandler <small>[function(wrapper, searchText)]</small></h4>
+                            <h4>optionsHandler <small>[function(wrapper, searchText)]</small></h4>
                             <p>First argument is main object of prettySelect, second argument is content of searchbar.
                                 This function should return object in format <code>{value:text}</code>. It is possible to load values through AJAX.</p>
                         </div>
@@ -341,7 +341,7 @@ var options = $("select").prettySelect({
 };
 
 $("select").prettySelect({
-    valuesHandler: customValues,
+    optionsHandler: customValues,
     searchDebounce: 500
 });
 </code></pre>

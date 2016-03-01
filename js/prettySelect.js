@@ -1,258 +1,221 @@
 (function ($) {
     $.fn.prettySelect = function (options) {
-        
+        var defaultTemplate = '<div class="WRAPPER"><div class="OPTIONS"></div><div class="selectSearchWrap"><div class="SEARCHLIST"></div><div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div></div></div>';
+
         var settings = {
             action: "create",
+            template: defaultTemplate,
             wrapperTemplate: "<div class='form-control'>",
             labelTemplate: "<span class='label label-primary'>",
             listTemplate: "<div>",
             listItemTemplate: "<div>",
             itemRemoveTemplate: "<span>&times;</span>",
-            valuesHandler: null,
+            optionsHandler: null,
             listFilterHandler: filterList,
             customSearch: false,
             searchEnabled: true,
-            searchDebounce: 100
+            searchDebounce: 150
         };
-        
+
         if (typeof options == 'object')
         {
             settings = $.extend(settings, options);
         } else {
             settings.action = options;
         }
-        
-        var prettySelect = function(select){
-            this.template = $("<div>");
-            this.wrapper = settings.wrapperTemplate;
-            this.selectBox = select;
-            this.values = {};
-            this.selected = {};
-            this.optionsList = new optionsList();
-            this.searchWrap = new searchWrap();
-            this.searchList = new searchList();
-            
-            return this;
-        };
-        
-        var optionsList = function(){
-            this.multiple = false;
-            this.showing = [];
+
+        var optionsList = function (prettySelect) {
+            this.prettySelect = prettySelect;
+            this.selected = [];
+            this.template = $("<div class='selectOptions'>");
             this.labelTemplate = settings.labelTemplate;
-            
-            
-            return this;
-        };
-        
-        var searchWrap = function(){
-            this.searchbar = $("<input type='text' class='selectSearch'>");
-            
-            return this;
-        };
-        
-        var searchList = function(){
-            this.template = settings.listTemplate;
-            this.itemTemplate = settings.listItemTemplate;
-            
-            return this;
-        };
-        
-        searchList.prototype.filter = settings.listFilterHandler;
-        
-        prettySelect.prototype.addValues = function(values){
-            $.extend(this.values,values);
-        };
-        
-        prettySelect.prototype.select = function(selected){
-            for(var value in selected)
+
+            if (prettySelect.multiple)
             {
-                
+                $(this.template).on("click", ".selectLabel.selected", function () {
+                    prettySelect.unselect($(this));
+                });
+
+                $(this.template).on("click", ".selectLabel .close", function () {
+                    prettySelect.unselect($(this).closest(".selectLabel"));
+                });
             }
+            $(this.template).on("click", ".selectOptions .selectLabel.unselected", function () {
+                prettySelect.selectItem($(this));
+            });
+
+            return this;
         };
 
-        function render(wrapper, selected)
-        {
-            if (settings.searchEnabled)
-            {
-                select(wrapper, selected);
-            } else {
-                renderNoSearch(wrapper, selected);
-            }
-        }
-
-        function renderNoSearch(wrapper, selected)
-        {
-            var data = wrapper.selectData;
-            var values = data.values;
-            var parent = data.parent;
+        optionsList.prototype.render = function () {
+            var prettySelect = this.prettySelect;
+            var values = prettySelect.values;
+            var selected = prettySelect.selected;
+            prettySelect.loading(true);
             for (var value in values)
             {
-                var label = $(settings.labelTemplate);
-                var text = values[value];
-                label.addClass('selectLabel');
-                label.val(value).text(text).attr('id', 's' + value);
-                label.data("value",value);
-                label.data("text",text);
                 var isSelected = ($.inArray(value, selected) != -1);
-                if (!isSelected)
-                {
-                    label.addClass("unselected");
-                } else {
-                    label.addClass("selected");
-                }
-                if ($("option[value='" + value + "']", parent).length == 0)
-                {
-                    var option = $("<option>");
-                    if(isSelected)
-                    {
-                        option.attr("selected", true);
-                    }else{
-                        option.attr("selected", false);
-                    }
-                    option.val(value).text(text);
-                    $(parent).append(option);
-                }
-                wrapper.append(label);
-            }
-        }
-
-        function select(wrapper, selected)
-        {
-            var data = wrapper.selectData;
-            var parent = data.parent;
-            var values = data.values;
-            if (Object.prototype.toString.call(selected) !== '[object Array]')
-            {
-                selected = [selected];
-            }
-            var search = data.search;
-            for (var i = 0; i < selected.length; i++)
-            {
-                var label = $(settings.labelTemplate);
-                var value = selected[i];
+                var label = $(this.labelTemplate);
+                label.addClass('selectLabel').attr('id', 's' + value).val(value);
                 var text = values[value];
-                label.addClass('selectLabel').addClass('selected');
-                label.val(value).text(text).attr('id', 's' + value)
-                if (data.multiple)
+                label.text(text);
+                if (prettySelect.showAll || !prettySelect.searchEnabled)
+                {
+                    if (isSelected)
+                    {
+                        label.addClass('selected');
+                    } else {
+                        label.addClass('unselected');
+                    }
+                } else {
+                    if (!isSelected)
+                    {
+                        continue;
+                    }
+                    label.addClass('selected');
+                }
+
+                if (prettySelect.multiple && !prettySelect.showAll && prettySelect.searchEnabled)
                 {
                     label.append($(settings.itemRemoveTemplate).addClass("close"));
                 } else {
-                    if (search)
+                    if (prettySelect.searchEnabled)
                     {
-                        $(".selectLabel", wrapper).remove();
+                        $(".selectLabel", this.template).remove();
                     } else {
-                        $(".selectLabel#s" + value, wrapper).removeClass("selected");
+                        $(".selectLabel#s" + value, this.template).removeClass("selected");
                     }
                 }
-                data.options.append(label);
-                if ($("option[value='" + value + "']", parent).length == 0)
-                {
-                    var option = $("<option selected>");
-                    option.val(value).text(text);
-                    $(parent).append(option);
-                }
-                if (data.multiple)
-                {
-                    $("option[value='" + value + "']", parent).prop("selected", true);
-                } else {
-                    parent.val(value);
-                }
+                this.template.append(label);
             }
-        }
+            prettySelect.loading(false);
+        };
 
-        function unselect(wrapper, item)
-        {
-            var parent = wrapper.selectData.parent;
-            var value = item.val();
-            $('option[value="' + value + '"]', parent).prop("selected", false);
-            if (settings.searchEnabled)
-            {
-                item.remove();
-                fillList(wrapper);
-            } else {
-                $(item).removeClass("selected").addClass("unselected");
-            }
-            parent.trigger("change");
-        }
+        var searchWrap = function (prettySelect) {
+            this.prettySelect = prettySelect;
+            var input = $("<input type='text' class='selectSearch' value=''>");
+            this.searchbar = input;
 
-        function searchKeyUp(wrapper)
-        {
-            var input = wrapper.selectData.search;
-            var list = wrapper.selectData.list;
-            var text = input.val();
-            if (text != input.lastState)
+            var self = this;
+
+            $(input).on("keyup", function () {
+                self.searchKeyUp(this);
+            });
+
+            $(input).on("focus", function () {
+                prettySelect.element.addClass("focused");
+            });
+
+            this.value = "";
+            this.lastState = "";
+
+            return this;
+        };
+
+        searchWrap.prototype.searchKeyUp = function () {
+            var searchbar = this.searchbar;
+            var value = searchbar.val();
+            var list = this.prettySelect.searchList;
+            if (value != this.lastState)
             {
                 var debounce = settings.searchDebounce;
-                if(debounce > 300)
+                if (debounce > 300)
                 {
-                    list.addClass("loading");
+                    list.loading(true);
                 }
-                input.lastState = text;
-                if (typeof input.timeout != 'undefined')
+                this.lastState = value;
+                if (typeof this.timeout != 'undefined')
                 {
-                    clearTimeout(input.timeout);
+                    clearTimeout(this.timeout);
                 }
-                input.timeout = setTimeout(function () {
-                    if (input.val() == text)
+                var wrap = this;
+                this.timeout = setTimeout(function () {
+                    if (searchbar.val() == value)
                     {
-                        fillList(wrapper);
+                        wrap.searchValues(value);
                     }
                 }, debounce);
             }
-        }
+        };
 
-        function focusSearch(wrapper)
-        {
-            var input = wrapper.selectData.search;
-            $(input).focus();
-        }
-
-        function showList(wrapper)
-        {
-            var list = wrapper.selectData.list;
-            $(list).css('display', 'initial');
-            fillList(wrapper);
-        }
-
-        function fillList(wrapper)
-        {
-            var data = wrapper.selectData;
-            var list = data.list;
-            var input = data.search;
-            var search = input.val();
-            if (settings.valuesHandler == null)
+        searchWrap.prototype.searchValues = function (search) {
+            if (typeof search == "undefined")
             {
-                fillListFinish(wrapper, data.values);
-                list.removeClass("loading");
+                search = this.searchbar.val();
+            }
+            var prettySelect = this.prettySelect;
+            var list = prettySelect.searchList;
+            var optionsHandler = prettySelect.optionsHandler;
+            var values = prettySelect.values;
+
+            if (optionsHandler == null)
+            {
+                list.fillList(values, search);
+                list.loading(false);
             } else {
-                list.addClass("loading");
-                $.when(settings.valuesHandler(wrapper, search)).then(function (response) {
-                    fillListFinish(wrapper, response);
-                    list.removeClass("loading");
+                list.loading(true);
+                $.when(optionsHandler(search)).then(function (response) {
+                    list.fillList(response, search);
+                    list.loading(false);
                 });
             }
-        }
+        };
 
-        function fillListFinish(wrapper, values)
-        {
-            var data = wrapper.selectData;
-            var valuesTemp = data.values;
-            for (var attrname in values) { valuesTemp[attrname] = values[attrname];}
+        searchWrap.prototype.setPlaceholder = function (text) {
+            this.prettySelect.placeholder = text;
+            this.searchbar.prop("placeholder", text);
+        };
+
+        var searchList = function (prettySelect) {
+            this.prettySelect = prettySelect;
+            this.template = $(settings.listTemplate);
+            this.itemTemplate = settings.listItemTemplate;
+
+            $(this.template).on("click", ".selectListItem:not(.selected)", function () {
+                prettySelect.selectItem($(this));
+                if (prettySelect.multiple)
+                {
+                    $(this).remove();
+                } else {
+                    $(".selectListItem.selected", this.template).removeClass("selected");
+                    $(this).addClass("selected");
+                }
+            });
+
+            return this;
+        };
+
+        searchList.prototype.loading = function (is) {
+            var el = this.template;
+            if (is)
+            {
+                el.addClass("loading");
+            } else {
+                el.removeClass("loading");
+            }
+        };
+
+        searchList.prototype.filter = settings.listFilterHandler;
+
+        searchList.prototype.fillList = function (values, search) {
+            var prettySelect = this.prettySelect;
+            var template = this.template;
+            var valuesTemp = prettySelect.values;
+            for (var attrname in values) {
+                valuesTemp[attrname] = values[attrname];
+            }
             values = valuesTemp;
-            var multiple = data.multiple;
-            var input = data.search;
-            var search = input.val();
-            var list = data.list;
-            $(list).html("<div class='noItems'>No more items</div>");
-            var selected = data.parent.val();
+            var multiple = prettySelect.multiple;
+            template.html("<div class='noItems'>No more items</div>");
+            var selected = prettySelect.selected;
             for (var value in values)
             {
                 var text = values[value];
-                var matches = settings.listFilterHandler(search, text);
+                var matches = this.filter(search, text);
                 var isSelected = ($.inArray(value.toString(), selected) != -1);
                 if ((!isSelected || !multiple) && matches)
                 {
-                    var listItem = $(settings.listItemTemplate);
+                    var listItem = $(this.itemTemplate);
                     listItem.addClass("selectListItem");
                     $(listItem).data('value', value);
                     $(listItem).data('text', text);
@@ -261,10 +224,211 @@
                     {
                         $(listItem).addClass("selected");
                     }
-                    $(list).append(listItem);
+                    $(template).append(listItem);
                 }
             }
-        }
+        };
+
+        var prettySelect = function (select) {
+            select.psData = this;
+            this.selectBox = $(select);
+            this.selectBox.css("display", "none");
+
+            this.multiple = (typeof this.selectBox.attr("multiple") != "undefined");
+            this.placeholder = "search";
+            this.values = {};
+            this.selected = [];
+            this.optionsHandler = settings.optionsHandler;
+
+            this.searchEnabled = settings.searchEnabled;
+            this.showAll = false;
+
+            this.element = $("<div class='prettySelect'>");
+            this.template = $(settings.template);
+            this.wrapper = $(settings.wrapperTemplate);
+            this.optionsList = new optionsList(this);
+            this.searchWrap = new searchWrap(this);
+            this.searchList = new searchList(this);
+
+            return this;
+        };
+
+        prettySelect.prototype.loading = function (is) {
+            var el = this.element;
+            if (is)
+            {
+                el.addClass("loading");
+            } else {
+                el.removeClass("loading");
+            }
+        };
+
+        prettySelect.prototype.addOptions = function (options) {
+            $.extend(this.values, options);
+        };
+
+        prettySelect.prototype.select = function (selected) {
+            var parent = this.selectBox;
+            var values = this.values;
+            if (Object.prototype.toString.call(selected) !== '[object Array]')
+            {
+                selected = [selected];
+            }
+            this.selected = jQuery.unique(this.selected.concat(selected));
+
+            var search = this.searchEnabled;
+            var optionsList = this.optionsList;
+            for (var i = 0; i < selected.length; i++)
+            {
+                var label = $(optionsList.labelTemplate);
+                var value = selected[i];
+                var text = values[value];
+                label.addClass('selectLabel').addClass('selected');
+                label.val(value).text(text).attr('id', 's' + value)
+                if (this.multiple)
+                {
+                    label.append($(settings.itemRemoveTemplate).addClass("close"));
+                } else {
+                    if (search)
+                    {
+                        $(".selectLabel", optionsList.template).remove();
+                    } else {
+                        $(".selectLabel#s" + value, optionsList.template).removeClass("selected");
+                    }
+                }
+                optionsList.template.append(label);
+                if ($("option[value='" + value + "']", parent).length == 0)
+                {
+                    var option = $("<option selected>");
+                    option.val(value).text(text);
+                    $(parent).append(option);
+                }
+                if (this.multiple)
+                {
+                    $("option[value='" + value + "']", parent).prop("selected", true);
+                } else {
+                    parent.val(value);
+                }
+            }
+        };
+
+        prettySelect.prototype.unselect = function (item) {
+            var parent = this.selectBox;
+            var value = item.val();
+            var pos = $.inArray(value.toString(), this.selected);
+            if (pos != -1)
+            {
+                this.selected.splice(pos, 1);
+            }
+            $('option[value="' + value + '"]', parent).prop("selected", false);
+            if (this.searchEnabled)
+            {
+                item.remove();
+                this.searchWrap.searchValues();
+            } else {
+                $(item).removeClass("selected").addClass("unselected");
+            }
+            parent.trigger("change");
+        };
+
+        prettySelect.prototype.selectItem = function (item) {
+            var parent = this.selectBox;
+            var value = $(item).data("value");
+            var text = $(item).data("text");
+            this.values[value] = text;
+            if (this.searchEnabled)
+            {
+                this.select(value);
+            } else {
+
+                if (this.multiple)
+                {
+                    $("option[value='" + value + "']", parent).prop("selected", true);
+                } else {
+                    $(".selectLabel.selected", this.optionsList.template).removeClass("selected").addClass("unselected");
+                    parent.val(value);
+                }
+                $(item).removeClass("unselected").addClass("selected");
+            }
+            if (!this.multiple)
+            {
+                this.searchWrap.setPlaceholder(text);
+            }
+            parent.trigger("change");
+        };
+
+        prettySelect.prototype.render = function () {
+            var template = $("<div>").html($(this.template));
+            var el = this.element;
+
+            var tempWrapper = $(".WRAPPER", template);
+            var wrapper = this.wrapper;
+            wrapper.addClass("selectWrapper");
+            wrapper.html(tempWrapper.html());
+            tempWrapper.replaceWith(wrapper);
+
+            var tempOptions = $(".OPTIONS", template);
+            var options = this.optionsList.template;
+            options.html(tempOptions.html());
+            tempOptions.replaceWith(options);
+
+            if (this.searchEnabled)
+            {
+                var tempSearchList = $(".SEARCHLIST", template);
+                var searchList = this.searchList.template;
+                searchList.addClass("selectList");
+                searchList.html(tempSearchList.html());
+                tempSearchList.replaceWith(searchList);
+
+                var tempSearchWrap = $(".SEARCHWRAP", template);
+                var searchWrap = $(this.optionsList.labelTemplate);
+                searchWrap.addClass("searchWrap");
+                searchWrap.html(tempSearchWrap.html());
+                tempSearchWrap.replaceWith(searchWrap);
+
+                var tempSearchbar = $(".SEARCH", template);
+                var input = this.searchWrap.searchbar;
+                input.prop("placeholder", this.placeholder);
+                tempSearchbar.replaceWith(input);
+
+                this.searchWrap.searchValues();
+
+                var prettySelect = this;
+
+                var stayFocused = false;
+
+                $(el).on("mousedown", function () {
+                    stayFocused = true;
+                }).on("click", function () {
+                    $(".selectSearch", el).focus();
+                    stayFocused = false;
+                });
+
+                $(el).on("blur", ".selectSearch", function () {
+                    if (!stayFocused)
+                    {
+                        $(el).removeClass("focused");
+                    }
+                    stayFocused = false;
+                });
+            } else {
+                $(".SEARCHLIST, .SEARCHWRAP, .SEARCH", template).remove();
+            }
+
+            $(el).html("");
+            $(el).append(template.children());
+            $(el).insertAfter(this.selectBox);
+
+            if (this.multiple)
+            {
+                el.addClass("multiple");
+                $(el).on("dblclick", ".selectLabel", function () {
+                    prettySelect.unselect($(this));
+                });
+            } else {
+                el.addClass("simple");
+            }
+        };
 
         function filterList(search, text)
         {
@@ -288,47 +452,9 @@
             return matches;
         }
 
-        function hideList(wrapper)
-        {
-            var list = wrapper.selectData.list;
-            $(list).css('display', 'none');
-            var input = wrapper.selectData.search;
-            if (typeof input.timeout != 'undefined')
-            {
-                clearTimeout(input.timeout);
-            }
-        }
-
-        function selectItem(wrapper, item)
-        {
-            var data = wrapper.selectData;
-            var value = $(item).data("value");
-            var text = $(item).data("text");
-            data.values[value] = text;
-            if (settings.searchEnabled)
-            {
-                select(wrapper, value);
-                if(!data.multiple)
-                {
-                    data.search.prop("placeholder",text);
-                }
-            } else {
-                var parent = data.parent;
-                if (data.multiple)
-                {
-                    $("option[value='" + value + "']", parent).prop("selected", true);
-                } else {
-                    $(".selectLabel.selected", wrapper).removeClass("selected").addClass("unselected");
-                    parent.val(value);
-                }
-                $(item).removeClass("unselected").addClass("selected");
-            }
-            data.parent.trigger("change");
-        }
-
         function exists(item)
         {
-            return (typeof item.selectData != 'undefined');
+            return (typeof item.psData != 'undefined');
         }
 
         function getValues(wrapper)
@@ -350,8 +476,8 @@
             this.each(function () {
                 if (exists(this))
                 {
-                    var wrapper = this.selectData.wrapper;
-                    values.push(getValues(wrapper));
+                    var object = this.psData;
+                    values.push(object.values);
                 } else {
                     values.push(null);
                 }
@@ -362,168 +488,56 @@
                 switch (action) {
                     case "destroy":
                     {
-                        $(this).css("display", "initial");
-                        $(this.selectData.wrapper).remove();
-                        delete this.selectData;
-                        break;
+                        if(exists(this))
+                        {
+                            var object = this.psData;
+                            $(this).css("display", null);
+                            $(object.element).remove();
+                            delete this.psData;
+                            delete object;
+                        }
                     }
                     case "create":
                     default:
                     {
                         if (exists(this))
                         {
-                            return true;
+                            return false;
                         }
-                        $(this).css("display", "none");
-                        var wrapper = $(settings.wrapperTemplate);
-                        $(wrapper).addClass("prettySelect");
-                        var opts = $("<div class='selectOptions'>");
-                        wrapper.append(opts);
-
-                        var stayFocused = false;
-                        var listIsOpen = false;
-                        var multiple = (typeof $(this).attr("multiple") != 'undefined');
-
-                        this.selectData = {
-                            'wrapper': wrapper
-                        };
+                        var object = new prettySelect(this);
 
                         var options = $("option", this);
                         var values = {};
                         var selected = [];
-                        var placeholder = "search";
                         options.each(function () {
                             var val = $(this).val();
                             var text = $(this).text()
                             if ($(this).is(":selected"))
                             {
                                 selected.push(val);
-                                if(!multiple)
+                                if (!object.multiple)
                                 {
-                                    placeholder = text;
+                                    object.placeholder = text;
                                 }
                             }
                             values[val] = text;
                         });
+                        object.addOptions(values);
+                        object.select(selected);
 
-                        wrapper.selectData = {
-                            'parent': $(this),
-                            'options': opts,
-                            'values': values,
-                            'multiple': multiple
-                        }
-
-                        if (settings.valuesHandler != null && !settings.searchEnabled)
+                        if (settings.optionsHandler != null && !settings.searchEnabled)
                         {
-                            wrapper.addClass("loading");
-                            $.when(settings.valuesHandler(wrapper, "")).then(function (response) {
-                                $.extend(wrapper.selectData.values, response);
-                                render(wrapper, selected);
-                                wrapper.removeClass("loading");
+                            object.loading(true);
+                            $.when(settings.optionsHandler("")).then(function (response) {
+                                object.addOptions(response);
+                                object.render();
+                                object.optionsList.render();
+                                object.loading(false);
                             });
                         } else {
-                            render(wrapper, selected);
+                            object.render();
+                            object.optionsList.render();
                         }
-
-                        if (settings.searchEnabled) {
-                            wrapper.bind("mousedown", function (e) {
-                                stayFocused = true;
-                            }).bind("click", function () {
-                                focusSearch(wrapper);
-                                stayFocused = false;
-                            });
-
-                            if (multiple)
-                            {
-                                wrapper.addClass("multiple");
-                                wrapper.on("dblclick", ".selectLabel", function () {
-                                    unselect(wrapper, $(this));
-                                });
-                            }else{
-                                wrapper.addClass("simple");
-                            }
-
-                            wrapper.on("click", ".selectLabel .close", function () {
-                                unselect(wrapper, $(this).closest(".selectLabel"));
-                            });
-
-                            var searchWrap = $("<div class='selectSearchWrap'>");
-
-                            var search = $("<input type='text' class='selectSearch'>");
-                            search.prop("placeholder",placeholder);
-                            wrapper.selectData.search = $(search);
-                            search.lastState = "";
-
-                            search.bind("keyup", function () {
-                                searchKeyUp(wrapper);
-                            });
-
-                            search.bind("focus", function () {
-                                if (!listIsOpen)
-                                {
-                                    showList(wrapper);
-                                    $(wrapper).addClass("focused");
-                                    listIsOpen = true;
-                                }
-                            });
-
-                            var list = $(settings.listTemplate);
-                            list.addClass("selectList");
-                            list.css("display","none");
-                            wrapper.selectData.list = $(list);
-
-                            list.on("click", ".selectListItem:not(.selected)", function (e) {
-                                selectItem(wrapper, $(this));
-                                if (multiple)
-                                {
-                                    $(this).remove();
-                                } else {
-                                    $(".selectListItem.selected", list).removeClass("selected");
-                                    $(this).addClass("selected");
-                                }
-                            });
-
-                            search.bind("blur", function () {
-                                if (!stayFocused)
-                                {
-                                    hideList(wrapper);
-                                    $(wrapper).removeClass("focused");
-                                    listIsOpen = false;
-                                }
-                                stayFocused = false;
-                            });
-                            
-                            var inputWrap = $(settings.labelTemplate);
-                            inputWrap.addClass("selectInputWrap");
-                            inputWrap.append(search);
-                            inputWrap.append($("<span class='glyphicon glyphicon-search'>"));
-                            
-                            searchWrap.append(list);
-                            if(settings.customSearch)
-                            {
-                                searchWrap.append(inputWrap.children());
-                            }else{
-                                searchWrap.append(inputWrap);
-                            }
-
-                            wrapper.append(searchWrap);
-
-                            wrapper.addClass("has-search");
-                        } else {
-                            if (multiple)
-                            {
-                                wrapper.on("click", ".selectLabel.selected", function () {
-                                    unselect(wrapper, $(this));
-                                    return false;
-                                });
-                            }
-                            wrapper.on("click", ".selectLabel.unselected", function () {
-                                selectItem(wrapper, $(this));
-                                return false;
-                            });
-                        }
-
-                        wrapper.insertAfter($(this));
                     }
                 }
             });
