@@ -4,6 +4,26 @@
 
 Pretty Select is a jQuery plugin to turn your old select boxes into pretty ones. With completely free hands on editing templates of select boxes and ability to load values dynamically, this plugin comes in handy for both beginners and skilled developers.
 
+### Installation
+Download and include files
+
+```html
+<head>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="prettySelect.css">
+    <script src="jquery.min.js"></script>
+    <script src="prettySelect.js"></script>
+</head>
+```
+
+Run prettySelect()
+
+```javascript
+$("select").prettySelect();
+```
+
+And you're done :smile:
+
 ### Features list
 -------------
 #### Default Pretty Select
