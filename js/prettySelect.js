@@ -42,16 +42,16 @@
                     e.preventDefault()
                     prettySelect.unselect($(this).closest(".selectLabel"));
                 });
+                
+                $(this.template).on("dblclick", ".selectLabel.selected", function (e) {
+                    e.preventDefault()
+                    prettySelect.unselect($(this));
+                });
             }
             
             if ((!prettySelect.multiple && prettySelect.allowDeselect) || (prettySelect.multiple && !prettySelect.searchEnabled))
             {
                 $(this.template).on("click", ".selectLabel.selected", function (e) {
-                    e.preventDefault()
-                    prettySelect.unselect($(this));
-                });
-                
-                $(this.template).on("dblclick", ".selectLabel.selected", function (e) {
                     e.preventDefault()
                     prettySelect.unselect($(this));
                 });

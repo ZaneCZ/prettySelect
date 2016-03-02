@@ -54,12 +54,14 @@
 
                 var customTemplate = '\
                 <div class="WRAPPER">\
+                    <h5>Custom template<h5>\
                     <div class="OPTIONS"></div>\
-                </div>\
-                <div class="SEARCHLIST"></div>\
-                <div class="SEARCHWRAP">\
-                    <input class="SEARCH">\
-                    <span class="glyphicon glyphicon-search"></span>\
+                    <div class="SEARCHWRAP">\
+                        <div class="customSearchWrap">\
+                            <input class="SEARCH">\
+                            <div class="SEARCHLIST"></div>\
+                        </div>\
+                    </div>\
                 </div>';
 
                 $("#custom-template").prettySelect({
@@ -68,7 +70,7 @@
                     labelTemplate: "<div class='customLabel'>",
                     listTemplate: "<div class='customList'>",
                     listItemTemplate: "<div class='customListItem'>",
-                    itemRemoveTemplate: "<div class='customRemove'>",
+                    itemRemoveTemplate: "<div class='customRemove'><span class='glyphicon glyphicon-remove'></span></div>",
                     customSearch: true
                 });
 
@@ -341,21 +343,23 @@ var options = $("select").prettySelect({
                             <h2>PrettySelect with custom templates</h2>
                             <pre><code class="language-javascript">var customTemplate = &#39;\
 &lt;div class=&quot;WRAPPER&quot;&gt;\
+    &lt;h5&gt;Custom template&lt;h5&gt;\
     &lt;div class=&quot;OPTIONS&quot;&gt;&lt;/div&gt;\
-&lt;/div&gt;\
-&lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
-&lt;div class=&quot;SEARCHWRAP&quot;&gt;\
-    &lt;input class=&quot;SEARCH&quot;&gt;\
-    &lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;\
+    &lt;div class=&quot;SEARCHWRAP&quot;&gt;\
+        &lt;div class=&quot;customSearchWrap&quot;&gt;\
+            &lt;input class=&quot;SEARCH&quot;&gt;\
+            &lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
+        &lt;/div&gt;\
+    &lt;/div&gt;\
 &lt;/div&gt;&#39;;
 </code></pre>
                             <pre><code class="language-javascript">$(&quot;select&quot;).prettySelect({
     template: customTemplate,
-    wrapperTemplate: &quot;&lt;div class='customWrapper'&gt;&quot;,
-    labelTemplate: &quot;&lt;div class='customLabel'&gt;&quot;,
-    listTemplate: &quot;&lt;div class='customList'&gt;&quot;,
-    listItemTemplate: &quot;&lt;div class='customListItem'&gt;&quot;,
-    itemRemoveTemplate: &quot;&lt;div class='customRemove'&gt;&quot;,
+    wrapperTemplate: &quot;&lt;div class=&#39;customWrapper&#39;&gt;&quot;,
+    labelTemplate: &quot;&lt;div class=&#39;customLabel&#39;&gt;&quot;,
+    listTemplate: &quot;&lt;div class=&#39;customList&#39;&gt;&quot;,
+    listItemTemplate: &quot;&lt;div class=&#39;customListItem&#39;&gt;&quot;,
+    itemRemoveTemplate: &quot;&lt;div class=&#39;customRemove&#39;&gt;&lt;span class=&#39;glyphicon glyphicon-remove&#39;&gt;&lt;/span&gt;&lt;/div&gt;&quot;,
     customSearch: true
 });
 </code></pre>
