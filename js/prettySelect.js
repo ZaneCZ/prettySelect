@@ -9,10 +9,12 @@
             action: "create",
             template: defaultTemplate,
             wrapperTemplate: "<div class='form-control'>",
-            labelTemplate: "<span class='label label-primary'>",
+            labelTemplate: "<span class='label label-primary'><div class='CONTENT'></div><span class='REMOVE'></span></div>",
+            labelContent: labelContent,
             listTemplate: "<div>",
-            listItemTemplate: "<div>",
-            itemRemoveTemplate: "<span>&times;</span>",
+            listItemTemplate: "<div><div class='CONTENT'></div></div>",
+            listItemContent: listItemContent,
+            itemRemoveTemplate: "<span class='close'>&times;</span>",
             optionsHandler: null,
             listFilterHandler: filterList,
             customSearch: false,
@@ -35,36 +37,35 @@
             this.template = $("<div class='selectOptions'>");
             this.labelTemplate = settings.labelTemplate;
 
-            
-            if(prettySelect.allowDisabled || prettySelect.multiple)
+
+            if (prettySelect.allowDisabled || prettySelect.multiple)
             {
-                $(this.template).on("click", ".selectLabel .close", function (e) {
+                this.template.on("click", ".selectLabel .selectRemove", function (e) {
                     e.preventDefault()
                     prettySelect.unselect($(this).closest(".selectLabel"));
                 });
-                
-                $(this.template).on("dblclick", ".selectLabel.selected", function (e) {
-                    e.preventDefault()
-                    prettySelect.unselect($(this));
-                });
-            }
-            
-            if ((!prettySelect.multiple && prettySelect.allowDeselect) || (prettySelect.multiple && !prettySelect.searchEnabled))
-            {
-                $(this.template).on("click", ".selectLabel.selected", function (e) {
+
+                this.template.on("dblclick", ".selectLabel.selected", function (e) {
                     e.preventDefault()
                     prettySelect.unselect($(this));
                 });
             }
 
-            $(this.template).on("click", ".selectLabel.unselected", function (e) {
+            if ((!prettySelect.multiple && prettySelect.allowDeselect) || (prettySelect.multiple && !prettySelect.searchEnabled))
+            {
+                this.template.on("click", ".selectLabel.selected", function (e) {
+                    e.preventDefault();
+                    prettySelect.unselect($(this));
+                });
+            }
+
+            this.template.on("click", ".selectLabel.unselected", function (e) {
                 e.preventDefault()
                 prettySelect.selectItem($(this));
             });
 
             return this;
-        }
-        ;
+        };
 
         optionsList.prototype.render = function () {
             var prettySelect = this.prettySelect;
@@ -94,10 +95,10 @@
                     label.addClass('selected');
                 }
 
-                if (((prettySelect.multiple && !prettySelect.showAll) || 
+                if (((prettySelect.multiple && !prettySelect.showAll) ||
                         (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled)
                 {
-                    label.append($(settings.itemRemoveTemplate).addClass("close"));
+                    label.append($(settings.itemRemoveTemplate).addClass("selectRemove"));
                 } else {
                     if (prettySelect.searchEnabled)
                     {
@@ -123,7 +124,12 @@
             });
 
             $(input).on("focus", function () {
-                prettySelect.element.addClass("focused");
+                var el = prettySelect.element;
+                if (!el.hasClass("focused"))
+                {
+                    self.setPlaceholder();
+                    el.addClass("focused");
+                }
             });
 
             this.value = "";
@@ -182,7 +188,10 @@
         };
 
         searchWrap.prototype.setPlaceholder = function (text) {
-            this.prettySelect.placeholder = text;
+            if (typeof text === 'undefined')
+            {
+                text = this.prettySelect.placeholder;
+            }
             this.searchbar.prop("placeholder", text);
         };
 
@@ -191,14 +200,52 @@
             this.template = $(settings.listTemplate);
             this.itemTemplate = settings.listItemTemplate;
 
-            $(this.template).on("click", ".selectListItem:not(.selected)", function () {
-                prettySelect.selectItem($(this));
+            var self = this;
+
+            var lastClicked = null;
+            var shiftSelected = $();
+
+            this.template.on("click", ".selectListItem", function (e) {
                 if (prettySelect.multiple)
                 {
-                    $(this).remove();
+                    var newSelected = $(this).add($(lastClicked));
+                    if (e.shiftKey && lastClicked !== null)
+                    {
+                        if ($(lastClicked).prevAll().filter($(this)).length !== 0)
+                        {
+                            newSelected = newSelected.add($(lastClicked).prevUntil($(this)));
+                        } else {
+                            newSelected = newSelected.add($(lastClicked).nextUntil($(this)));
+                        }
+                        prettySelect.unselect(shiftSelected.not(newSelected));
+                    } else {
+                        lastClicked = this;
+                    }
+                    prettySelect.selectItem(newSelected);
+                    shiftSelected = newSelected;
                 } else {
-                    $(".selectListItem.selected", this.template).removeClass("selected");
-                    $(this).addClass("selected");
+                    lastClicked = this;
+                    if (this != lastClicked)
+                    {
+                        shiftSelected = $();
+                    }
+                    if (!$(this).hasClass("selected"))
+                    {
+                        self.template.children(".selectListItem.selected").removeClass("selected");
+                        prettySelect.selectItem($(this));
+                    }
+                }
+            });
+
+            this.template.on("click", ".selectListItem.selected", function (e) {
+                if (!e.shiftKey || lastClicked === null)
+                {
+                    lastClicked = this;
+                    if (prettySelect.multiple || prettySelect.allowDeselect)
+                    {
+                        prettySelect.unselect($(this));
+                        $(this).removeClass("selected");
+                    }
                 }
             });
 
@@ -225,28 +272,36 @@
                 valuesTemp[attrname] = values[attrname];
             }
             values = valuesTemp;
-            var multiple = prettySelect.multiple;
             template.html("<div class='noItems'>No more items</div>");
             var selected = prettySelect.selected;
             for (var value in values)
             {
-                var text = values[value];
-                var matches = this.filter(search, text);
-                var isSelected = ($.inArray(value.toString(), selected) != -1);
-                if ((!isSelected || !multiple) && matches)
+                var content = values[value];
+                var matches = this.filter(search, content);
+                if (matches)
                 {
                     var listItem = $(this.itemTemplate);
                     listItem.addClass("selectListItem");
                     $(listItem).data('value', value);
-                    $(listItem).data('text', text);
-                    $(listItem).text(text);
-                    if (!multiple && value == selected)
+                    $(listItem).data('text', content);
+                    $(listItem).val(value);
+                    $(listItem).text(content);
+                    $(listItem).attr("id","i"+value);
+                    var isSelected = ($.inArray(value.toString(), selected) != -1);
+                    if (isSelected)
                     {
                         $(listItem).addClass("selected");
                     }
                     $(template).append(listItem);
                 }
             }
+        };
+
+        searchList.prototype.listItem = function (value) {
+            var item = $(this.itemTemplate);
+            var content = settings.listItemContent(value);
+            $(".CONTENT", item).replaceWith(content);
+            return item;
         };
 
         var prettySelect = function (select) {
@@ -285,7 +340,64 @@
         };
 
         prettySelect.prototype.addOptions = function (options) {
-            $.extend(this.values, options);
+            var optionsTemp = {};
+            var max = 1;
+            var values = this.values;
+            if (options.constructor === Array)
+            {
+                var isJson = true;
+                try {
+                    JSON.parse(options[0])
+                } catch (e) {
+                    isJson = false;
+                }
+                for (var i = 0; i < options.length; i++)
+                {
+                    if (isJson)
+                    {
+                        var json = JSON.parse(options[i]);
+                        if (typeof json.id !== 'undefined')
+                        {
+                            optionsTemp[json.id] = json;
+                        } else if (typeof json.value !== 'undefined') {
+                            optionsTemp[json.value] = json;
+                        } else {
+                            do {
+                                if (typeof values[max] !== 'undefined')
+                                {
+                                    max++;
+                                } else {
+                                    optionsTemp[max] = json;
+                                    max++;
+                                }
+                            } while (true);
+                        }
+                    } else {
+                        do {
+                            if (typeof values[max] !== 'undefined')
+                            {
+                                max++;
+                            } else {
+                                optionsTemp[max] = options[i];
+                                max++;
+                            }
+                        } while (true);
+                    }
+                }
+            } else if (options !== null && typeof options === 'object') {
+                optionsTemp = options;
+            } else {
+                do {
+                    if (typeof values[max] !== 'undefined')
+                    {
+                        max++;
+                    } else {
+                        optionsTemp[max] = options;
+                        max++;
+                    }
+                } while (true);
+            }
+            $.extend(values, optionsTemp);
         };
 
         prettySelect.prototype.select = function (selected) {
@@ -295,22 +407,24 @@
             {
                 selected = [selected];
             }
-            this.selected = jQuery.unique(this.selected.concat(selected));
+            selected = $(selected).not(this.selected).get();
+            this.selected = this.selected.concat(selected);
 
             var search = this.searchEnabled;
             var optionsList = this.optionsList;
             for (var i = 0; i < selected.length; i++)
             {
+                
                 var label = $(optionsList.labelTemplate);
                 var value = selected[i];
                 var text = values[value];
                 label.addClass('selectLabel').addClass('selected');
                 label.val(value).text(text).attr('id', 's' + value)
-                if (((this.multiple && !this.showAll) || 
+                if (((this.multiple && !this.showAll) ||
                         (!this.multiple && this.allowDeselect)) && this.searchEnabled)
                 {
-                    label.append($(settings.itemRemoveTemplate).addClass("close"));
-                    this.searchWrap.setPlaceholder("search");
+                    label.append($(settings.itemRemoveTemplate).addClass("selectRemove"));
+                    this.searchWrap.setPlaceholder();
                 }
                 if (!this.multiple)
                 {
@@ -337,52 +451,57 @@
             }
         };
 
-        prettySelect.prototype.unselect = function (item) {
+        prettySelect.prototype.unselect = function (items) {
             var parent = this.selectBox;
-            var value = item.val();
-            var pos = $.inArray(value.toString(), this.selected);
-            if (pos != -1)
-            {
-                this.selected.splice(pos, 1);
-            }
-            $('option[value="' + value + '"]', parent).prop("selected", false);
-            if(!this.multiple)
-            {
-                parent.val(null);
-            }
-            if (this.searchEnabled)
-            {
-                item.remove();
-                this.searchWrap.searchValues();
-            } else {
-                $(item).removeClass("selected").addClass("unselected");
-            }
+            var self = this;
+            var changeState = $();
+            $(items).each(function () {
+                var value = $(this).val();
+                var pos = $.inArray(value.toString(), self.selected);
+                if (pos != -1)
+                {
+                    self.selected.splice(pos, 1);
+                }
+                $('option[value="' + value + '"]', parent).prop("selected", false);
+                var label = self.optionsList.template.children('.selectLabel#s' + value);
+                var searchItem = self.searchList.template.children('.selectListItem#i'+value);
+                changeState = changeState.add(label).add(searchItem);
+                if(self.searchEnabled)
+                {
+                    label.remove();
+                }else{
+                    label.removeClass("selected").addClass("unselected");
+                }
+                if (!self.multiple)
+                {
+                    parent.val(null);
+                }
+            });
+            $(changeState).removeClass("selected").addClass("unselected");
             parent.trigger("change");
         };
 
-        prettySelect.prototype.selectItem = function (item) {
+        prettySelect.prototype.selectItem = function (items) {
             var parent = this.selectBox;
-            var value = $(item).data("value");
-            var text = $(item).data("text");
-            this.values[value] = text;
-            if (this.searchEnabled)
-            {
-                this.select(value);
-            } else {
-
-                if (this.multiple)
+            var self = this;
+            $(items).each(function () {
+                var value = $(this).data("value");
+                var text = $(this).data("text");
+                self.values[value] = text;
+                if (self.searchEnabled)
                 {
-                    $("option[value='" + value + "']", parent).prop("selected", true);
+                    self.select(value);
                 } else {
-                    $(".selectLabel.selected", this.optionsList.template).removeClass("selected").addClass("unselected");
-                    parent.val(value);
+                    if (self.multiple)
+                    {
+                        $("option[value='" + value + "']", parent).prop("selected", true);
+                    } else {
+                        $(".selectLabel.selected", self.optionsList.template).removeClass("selected").addClass("unselected");
+                        parent.val(value);
+                    }
                 }
-                $(item).removeClass("unselected").addClass("selected");
-            }
-            if (!this.multiple)
-            {
-                this.searchWrap.setPlaceholder(text);
-            }
+            });
+            $(items).removeClass("unselected").addClass("selected");
             parent.trigger("change");
         };
 
@@ -484,6 +603,14 @@
             return matches;
         }
 
+        function labelContent(value) {
+            return value;
+        }
+
+        function listItemContent(value) {
+            return value;
+        }
+
         function exists(item)
         {
             return (typeof item.psData != 'undefined');
@@ -544,15 +671,16 @@
                         options.each(function () {
                             var val = $(this).val();
                             var text = $(this).text()
-                            if ($(this).is(":selected"))
+                            if (val.toString() == "" || val == null)
                             {
-                                selected.push(val);
-                                if (!object.multiple)
+                                object.placeholder = text;
+                            } else {
+                                if ($(this).is(":selected"))
                                 {
-                                    object.placeholder = text;
+                                    selected.push(val);
                                 }
+                                values[val] = text;
                             }
-                            values[val] = text;
                         });
                         object.addOptions(values);
                         object.select(selected);
