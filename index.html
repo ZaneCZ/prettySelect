@@ -107,13 +107,15 @@
                 }
                 $("#customFilter").prettySelect({
                     listFilterHandler: customFilter,
-                    listItemContent: customContent,
-                    labelContent: customContent,
-                    optionsHandler: function () {
-                        return [{bg: "primary", text: 'epic'}, {bg: "danger", text: 'not so epic'}, {bg: "muted", text: 'dull'}, {bg: "warning", text: 'gonna do it anyways'}]
-                    },
                     searchDebounce: 0
                 });
+                
+                
+                /*   labelContent: customContent,
+                    listItemContent: customContent,
+                    optionsHandler: function () {
+                        return [{bg: "primary", text: 'epic'}, {bg: "danger", text: 'not so epic'}, {bg: "muted", text: 'dull'}, {bg: "warning", text: 'gonna do it anyways'}]
+                    },*/
                 
                 function customContent(value) {
                     var item = $();
