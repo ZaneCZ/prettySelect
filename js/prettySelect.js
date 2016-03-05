@@ -1,5 +1,6 @@
 //Copyright (c) 2016 ZaneCZ
 //Developed by ZaneCZ under MIT licence
+//v0.8
 
 (function ($) {
     $.fn.prettySelect = function (options) {
@@ -225,10 +226,10 @@
             var lastClicked = null;
             var shiftSelected = $();
 
-            this.template.on("click", ".selectListItem", function (e) {
+            this.template.on("click", ".selectListItem:not(.selected)", function (e) {
                 if (prettySelect.multiple)
                 {
-                    var newSelected = $(this).add($(lastClicked));
+                    var newSelected = $(this);
                     if (e.shiftKey && lastClicked !== null)
                     {
                         if ($(lastClicked).prevAll().filter($(this)).length !== 0)
@@ -237,6 +238,7 @@
                         } else {
                             newSelected = newSelected.add($(lastClicked).nextUntil($(this)));
                         }
+                        newSelected = newSelected.add($(lastClicked));
                         prettySelect.unselect(shiftSelected.not(newSelected));
                     } else {
                         lastClicked = this;
@@ -433,14 +435,13 @@
             {
                 selected = [selected];
             }
-            selected = $(selected).not(this.selected).get();
             if(this.multiple)
             {
+                selected = $(selected).not(this.selected).get();
                 this.selected = this.selected.concat(selected);
             }else{
                 this.selected = selected;
             }
-            console.log(this.selected);
 
             var search = this.searchEnabled;
             var optionsList = this.optionsList;
