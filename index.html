@@ -97,16 +97,34 @@
 
                 function customFilter(searchText, value)
                 {
-                    if (value.indexOf(searchText) != -1)
+                    try{
+                    if (value.text.indexOf(searchText) != - 1)
                     {
-                        return true;
+                    return true;
                     }
+                    } catch (e){}
                     return false;
                 }
                 $("#customFilter").prettySelect({
                     listFilterHandler: customFilter,
+                    listItemContent: customContent,
+                    labelContent: customContent,
+                    optionsHandler: function () {
+                        return [{bg: "primary", text: 'epic'}, {bg: "danger", text: 'not so epic'}, {bg: "muted", text: 'dull'}, {bg: "warning", text: 'gonna do it anyways'}]
+                    },
                     searchDebounce: 0
                 });
+                
+                function customContent(value) {
+                    var item = $();
+                    if(typeof value == 'object')
+                    {
+                        item = $("<span class='bg-" + value.bg + "'>").text(value.text);
+                    }else{
+                        item = value;
+                    }
+                    return item;
+                }
             });
         </script>
     </head>
