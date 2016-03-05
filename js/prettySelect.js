@@ -10,10 +10,10 @@
             action: "create",
             template: defaultTemplate,
             wrapperTemplate: "<div class='form-control'>",
-            labelTemplate: "<span class='label label-primary'><div class='CONTENT'></div><span class='REMOVE'></span></div>",
+            labelTemplate: "<span class='label label-primary'></div>",
             labelContent: labelContent,
             listTemplate: "<div>",
-            listItemTemplate: "<div><div class='CONTENT'></div></div>",
+            listItemTemplate: "<div></div>",
             listItemContent: listItemContent,
             itemRemoveTemplate: "<span class='close'>&times;</span>",
             optionsHandler: null,
@@ -127,7 +127,14 @@
             if (((prettySelect.multiple && !prettySelect.showAll) ||
                     (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled)
             {
-                label.append($(settings.itemRemoveTemplate).addClass("selectRemove"));
+                var removeTemp = $(".REMOVE", label);
+                var remove = $(settings.itemRemoveTemplate).addClass("selectRemove");
+                if (removeTemp.length == 0)
+                {
+                    label.append(remove);
+                } else {
+                    removeTemp.replaceWith(remove);
+                }
             }
 
             return label;
@@ -435,11 +442,11 @@
             {
                 selected = [selected];
             }
-            if(this.multiple)
+            if (this.multiple)
             {
                 selected = $(selected).not(this.selected).get();
                 this.selected = this.selected.concat(selected);
-            }else{
+            } else {
                 this.selected = selected;
             }
 
