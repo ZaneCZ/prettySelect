@@ -30,8 +30,14 @@ html, body{
     overflow: hidden;
 }
 
+.page-header .menuu .btn{
+    height: 46px;
+    line-height: 34px;
+}
+
 .page-header .menuu .btn, .page-header .menul .btn{
     border-radius: 0;
+    display: block;
 }
 
 select{
