@@ -91,7 +91,7 @@
     display:none;
 }
 
-.prettySelect .selectWrapper .selectLabel .close{
+.prettySelect .selectWrapper .selectLabel .selectRemove{
     margin-left: 4px;
     font-size: 20px;
     opacity: 0.5;
@@ -122,7 +122,7 @@
 }
 
 .prettySelect .selectWrapper .selectList .selectListItem.selected{
-    background-color: #FF9;
+    background-color: #ccc;
 }
 
 .prettySelect .selectWrapper .selectList .noItems{
