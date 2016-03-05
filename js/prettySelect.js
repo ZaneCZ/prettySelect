@@ -10,7 +10,7 @@
             action: "create",
             template: defaultTemplate,
             wrapperTemplate: "<div class='form-control'>",
-            labelTemplate: "<span class='label label-primary'></div>",
+            labelTemplate: "<span class='label label-primary'></span>",
             labelContent: labelContent,
             listTemplate: "<div>",
             listItemTemplate: "<div></div>",

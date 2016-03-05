@@ -97,36 +97,60 @@
 
                 function customFilter(searchText, value)
                 {
-                    try{
-                    if (value.text.indexOf(searchText) != - 1)
-                    {
-                    return true;
+                    try {
+                        if (value.text.indexOf(searchText) != -1)
+                        {
+                            return true;
+                        }
+                    } catch (e) {
                     }
-                    } catch (e){}
                     return false;
                 }
                 $("#customFilter").prettySelect({
                     listFilterHandler: customFilter,
                     searchDebounce: 0
                 });
-                
-                
-                /*   labelContent: customContent,
-                    listItemContent: customContent,
-                    optionsHandler: function () {
-                        return [{bg: "primary", text: 'epic'}, {bg: "danger", text: 'not so epic'}, {bg: "muted", text: 'dull'}, {bg: "warning", text: 'gonna do it anyways'}]
-                    },*/
-                
-                function customContent(value) {
-                    var item = $();
-                    if(typeof value == 'object')
-                    {
-                        item = $("<span class='bg-" + value.bg + "'>").text(value.text);
-                    }else{
-                        item = value;
-                    }
-                    return item;
+
+                function contentValues() {
+                    return $.getJSON("ajaxDataAdvanced.json");
                 }
+                ;
+
+                function contentLabel(content) {
+                    var wrapper = $("<tr>");
+                    wrapper.append("<td>"+content.title+"</td>");
+                    wrapper.append("<td style='background-color:#"+content.hex+"'></td>");
+                    return wrapper;
+                }
+
+                function contentListItem(content) {
+                    return content.title;
+                }
+
+                function contentFilter(searchText, content) {
+                    content = content.toLowerCase();
+                    searchText = searchText.toLowerCase();
+                    if (content.title.indexOf(searchText) != -1)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                $("#contentSelect").prettySelect({
+                    optionsHandler: contentValues,
+                    listFilterHandler: contentFilter,
+                    labelTemplate: "\
+                    <div class='container-fluid'>\
+                        <table class='table table-bordered'>\
+                            <tr><td colspan='2'><div class='REMOVE'></div></td>\
+                            <tr><td>Color title</td>Inverse color preview<td></td></tr>\
+                            <tr class='CONTENT'></tr>\
+                        </table>\
+                    </div>",
+                    labelContent: contentLabel,
+                    listItemContent: contentListItem
+                });
             });
         </script>
     </head>
@@ -211,16 +235,18 @@
                             <pre><code class="language-javascript">var settings = {
     action: &quot;create&quot;,
     template: defaultTemplate,
-    wrapperTemplate: &quot;&lt;div class='form-control'&gt;&quot;,
-    labelTemplate: &quot;&lt;span class='label label-primary'&gt;&quot;,
-    listTemplate: &quot;&lt;div class='selectList'&gt;&quot;,
-    listItemTemplate: &quot;&lt;div&gt;&quot;,
-    itemRemoveTemplate: &quot;&lt;span&gt;&amp;times;&lt;/span&gt;&quot;,
-    searchEnabled: true,
-    searchDebounce: 150,
-    customSearch: false,
+    wrapperTemplate: &quot;&lt;div class=&#39;form-control&#39;&gt;&quot;,
+    labelTemplate: &quot;&lt;span class=&#39;label label-primary&#39;&gt;&lt;/div&gt;&quot;,
+    labelContent: labelContent,
+    listTemplate: &quot;&lt;div&gt;&quot;,
+    listItemTemplate: &quot;&lt;div&gt;&lt;/div&gt;&quot;,
+    listItemContent: listItemContent,
+    itemRemoveTemplate: &quot;&lt;span class=&#39;close&#39;&gt;&amp;times;&lt;/span&gt;&quot;,
     optionsHandler: null,
     listFilterHandler: filterList,
+    customSearch: false,
+    searchEnabled: true,
+    searchDebounce: 150,
     allowDeselect: false,
     showAll: false
 };
@@ -245,12 +271,20 @@
                             <p>has class <code>selectLabel</code></p>
                         </div>
                         <div class="expl">
+                            <h4><a href="#customContent">labelContent</a> <small>[function(content)]</small></h4>
+                            <p>Function returning content for label. <code>content</code> is content of label to render. <small>(object or text depending on <code>optionsHandler</code>)</small></p>
+                        </div>
+                        <div class="expl">
                             <h4>listTemplate <small>[html string or jQuery object]</small></h4>
                             <p>has class <code>selectList</code></p>
                         </div>
                         <div class="expl">
                             <h4>listItemTemplate <small>[html string or jQuery object]</small></h4>
                             <p>has class <code>selectListItem</code></p>
+                        </div>
+                        <div class="expl">
+                            <h4><a href="#customContent">listItemContent</a> <small>[function(content)]</small></h4>
+                            <p>Function returning content for list item. <code>content</code> is content of list item to render. <small>(object or text depending on <code>optionsHandler</code>)</small></p>
                         </div>
                         <div class="expl">
                             <h4>itemRemoveTemplate <small>[html string or jQuery object]</small></h4>
@@ -380,7 +414,7 @@ var options = $("select").prettySelect({
                     <hr>
                     <div class="row">
                         <div class="container-fluid" id="customTemplate">
-                            <h2>PrettySelect with custom templates</h2>
+                            <h2>Pretty Select with custom templates</h2>
                             <pre><code class="language-javascript">var customTemplate = &#39;\
 &lt;div class=&quot;WRAPPER&quot;&gt;\
     &lt;h5&gt;Custom template&lt;h5&gt;\
@@ -415,7 +449,7 @@ var options = $("select").prettySelect({
                     <hr>
                     <div class="row">
                         <div class="container-fluid">
-                            <h2>PrettySelect without searchbar</h2>
+                            <h2>Pretty Select without searchbar</h2>
                             <pre><code class="language-javascript">$(".nosearch").prettySelect({
     searchEnabled: false
 });
@@ -445,7 +479,7 @@ var options = $("select").prettySelect({
                     <hr>
                     <div class="row">
                         <div class="container-fluid">
-                            <h2>PrettySelect with custom values<br>
+                            <h2>Pretty Select with custom values<br>
                                 <small>(extreme debounce time)</small></h2>
                             <pre><code class="language-javascript">function customValues(wrapper, searchText) {
     return $.ajax(url);
@@ -469,7 +503,7 @@ $("select").prettySelect({
                     <hr>
                     <div class="row">
                         <div class="container-fluid">
-                            <h2>PrettySelect with custom filter</h2>
+                            <h2>Pretty Select with custom filter</h2>
                             <pre><code class="language-javascript">function customFilter(searchText, value)
 {
     if(value.indexOf(searchText) != -1)
@@ -494,6 +528,14 @@ $("select").prettySelect({
                             </select>
                         </div>
                     </div>
+                    <div class="row" id="customContent">
+                        <div class="container-fluid">
+                            <h2>Custom content usage</h2>
+                            <pre><code class="language-javascript">
+</code></pre>
+                            <select id="contentSelect"></select>
+                        </div>
+                    </div>
                     <div class="row ad">
                         <div class="container-fluid">
                             <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -510,7 +552,7 @@ $("select").prettySelect({
                     </div>
                     <div class="row">
                         <div class="container-fluid">
-                            <h2>To-Do list <small>before v1.0</small></h2>
+                            <h2>To-Do list</h2>
                             <ul class="list-group">
                                 <li class="list-group-item">
                                     <span class="hp label label-primary">High priority</span>

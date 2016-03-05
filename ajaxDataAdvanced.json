@@ -1,7 +1,7 @@
 {
-    "1": {"text":"Czech Republic","image":"http://www.worldatlas.com/webimage/countrys/europe/outline/cz.gif","population":"10.52"},
-    "2": {"text":"Germany","image":"http://0.tqn.com/d/geography/1/S/0/K/germany.jpg","population":"80.62"},
-    "3": {"text":"Poland","image":"http://www.worldatlas.com/webimage/countrys/europe/outline/pl.gif","population":"38.53"},
-    "4": {"text":"Slovakia","image":"http://www.worldatlas.com/webimage/countrys/europe/outline/sk.gif","population":"5.41"},
-    "5": {"text":"Austria","image":"http://www.worldatlas.com/webimage/countrys/europe/outline/at.gif","population":"8.47"}
+    "1": {"title":"Red","hex":"00ffff"},
+    "2": {"title":"Green","hex":"ff00ff"},
+    "3": {"title":"Blue","hex":"ffff00"},
+    "4": {"title":"Black","hex":"ffffff"},
+    "5": {"title":"White","hex":"000000"}
 }
