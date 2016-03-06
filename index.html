@@ -307,7 +307,9 @@
                         <div class="expl">
                             <h4>optionsHandler <small>[function(searchText)]</small></h4>
                             <p>searchText is searchbar content.
-                                This function should return object in format <code>{value:text}</code>. It is possible to load options through AJAX.</p>
+                                This function should return array <code>[object, object, ...]</code> or json object <code>{value:object}</code>.</p>
+                            <p>If array is returned, value is chosen by </p><ol><li>object.id</li><li>object.value</li><li>automatically from first available numeral value</li></ol>
+                            <p>It is possible to load options through AJAX.</p>
                         </div>
                         <div class="expl">
                             <h4>listFilterHandler <small>[function(searchText, value)]</small></h4>
