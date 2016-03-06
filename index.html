@@ -111,15 +111,10 @@
                     searchDebounce: 0
                 });
 
-                function contentValues() {
-                    return $.getJSON("ajaxDataAdvanced.json");
-                }
-                ;
-
                 function contentLabel(content) {
                     var wrapper = $("<tr>");
-                    wrapper.append("<td>"+content.title+"</td>");
-                    wrapper.append("<td style='background-color:#"+content.hex+"'></td>");
+                    wrapper.append("<td>" + content.title + "</td>");
+                    wrapper.append("<td style='background-color:#" + content.hex + "'></td>");
                     return wrapper;
                 }
 
@@ -128,9 +123,9 @@
                 }
 
                 function contentFilter(searchText, content) {
-                    content = content.toLowerCase();
+                    content = content.title.toLowerCase();
                     searchText = searchText.toLowerCase();
-                    if (content.title.indexOf(searchText) != -1)
+                    if (content.indexOf(searchText) != -1)
                     {
                         return true;
                     }
@@ -138,18 +133,25 @@
                 }
 
                 $("#contentSelect").prettySelect({
-                    optionsHandler: contentValues,
+                    optionsHandler: function () {
+                        return {
+                            "1": {"title": "Red", "hex": "00ffff"},
+                            "2": {"title": "Green", "hex": "ff00ff"},
+                            "3": {"title": "Blue", "hex": "ffff00"},
+                            "4": {"title": "Black", "hex": "ffffff"},
+                            "5": {"title": "White", "hex": "000000"}
+                        };
+                    },
                     listFilterHandler: contentFilter,
                     labelTemplate: "\
-                    <div class='container-fluid'>\
                         <table class='table table-bordered'>\
                             <tr><td colspan='2'><div class='REMOVE'></div></td>\
-                            <tr><td>Color title</td>Inverse color preview<td></td></tr>\
+                            <tr><td>Color title</td><td>Inverse color preview</td></tr>\
                             <tr class='CONTENT'></tr>\
-                        </table>\
-                    </div>",
+                        </table>",
                     labelContent: contentLabel,
-                    listItemContent: contentListItem
+                    listItemContent: contentListItem,
+                    allowDeselect: true
                 });
             });
         </script>
@@ -530,9 +532,49 @@ $("select").prettySelect({
                     </div>
                     <div class="row" id="customContent">
                         <div class="container-fluid">
-                            <h2>Custom content usage</h2>
-                            <pre><code class="language-javascript">
+                            <h2>Custom content usage <br><small>(This example is really stupid, but good for preview.)</small></h2>
+                            <pre><code class="language-javascript">function contentListItem(content) {
+    return content.title;
+}
+
+function contentFilter(searchText, content) {
+    content = content.title.toLowerCase();
+    searchText = searchText.toLowerCase();
+    if (content.indexOf(searchText) != -1)
+    {
+        return true;
+    }
+    return false;
+}
+
+$(&quot;select&quot;).prettySelect({
+    optionsHandler: function () {
+        return {
+            &quot;1&quot;: {&quot;title&quot;: &quot;Red&quot;, &quot;hex&quot;: &quot;00ffff&quot;},
+            &quot;2&quot;: {&quot;title&quot;: &quot;Green&quot;, &quot;hex&quot;: &quot;ff00ff&quot;},
+            &quot;3&quot;: {&quot;title&quot;: &quot;Blue&quot;, &quot;hex&quot;: &quot;ffff00&quot;},
+            &quot;4&quot;: {&quot;title&quot;: &quot;Black&quot;, &quot;hex&quot;: &quot;ffffff&quot;},
+            &quot;5&quot;: {&quot;title&quot;: &quot;White&quot;, &quot;hex&quot;: &quot;000000&quot;}
+        };
+    },
+    listFilterHandler: contentFilter,
+    labelTemplate: &quot;\
+        &lt;table class=&#39;table table-bordered&#39;&gt;\
+            &lt;tr&gt;&lt;td colspan=&#39;2&#39;&gt;&lt;div class=&#39;REMOVE&#39;&gt;&lt;/div&gt;&lt;/td&gt;\
+            &lt;tr&gt;&lt;td&gt;Color title&lt;/td&gt;&lt;td&gt;Inverse color preview&lt;/td&gt;&lt;/tr&gt;\
+            &lt;tr class=&#39;CONTENT&#39;&gt;&lt;/tr&gt;\
+        &lt;/table&gt;&quot;,
+    labelContent: contentLabel,
+    listItemTemplate: "&lt;div&gt;&lt;div class=&#39;CONTENT&#39;&gt;&lt;/div&gt;&lt;/div&gt;",
+    listItemContent: contentListItem,
+    allowDeselect: true
+});
 </code></pre>
+                            <h3>Explanation</h3>
+                            <p class="lead">In labelTemplate <code>.CONTENT</code> gets replaced by what labelContent returns as an object, otherwise whole html of label is replaced.
+                                If <code>.REMOVE</code> is present, it gets replaced by itemRemoveTemplate, if not it gets appended to the end of label.
+                            </p>
+                            <p class="lead">In listItemTemplate <code>.CONTENT</code> works the same way as in labelTemplate.</p>
                             <select id="contentSelect"></select>
                         </div>
                     </div>

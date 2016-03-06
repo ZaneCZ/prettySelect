@@ -39,7 +39,7 @@
             this.labelTemplate = settings.labelTemplate;
 
 
-            if (prettySelect.allowDisabled || prettySelect.multiple)
+            if (prettySelect.allowDeselect || prettySelect.multiple)
             {
                 this.template.on("click", ".selectLabel .selectRemove", function (e) {
                     e.preventDefault()
@@ -52,7 +52,7 @@
                 });
             }
 
-            if ((!prettySelect.multiple && prettySelect.allowDeselect) || (prettySelect.multiple && !prettySelect.searchEnabled))
+            if (((!prettySelect.multiple && prettySelect.allowDeselect) || (prettySelect.multiple)) && (!prettySelect.searchEnabled || prettySelect.showAll))
             {
                 this.template.on("click", ".selectLabel.selected", function (e) {
                     e.preventDefault();
