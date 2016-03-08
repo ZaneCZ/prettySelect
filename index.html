@@ -55,24 +55,23 @@
                 });
 
                 var customTemplate = '\
-                <div class="WRAPPER">\
+                <div class="WRAPPER customWrapper">\
                     <h5>Custom template<h5>\
-                    <div class="OPTIONS"></div>\
+                    <div class="OPTIONS">\
+                        <div class="customLabel">\
+                            <div class="REMOVE customRemove"><span class="glyphicon glyphicon-remove"></span></div>\
+                        </div>\
+                    </div>\
                     <div class="SEARCHWRAP">\
-                        <div class="customSearchWrap">\
-                            <input class="SEARCH">\
-                            <div class="SEARCHLIST"></div>\
+                        <input class="SEARCH">\
+                        <div class="SEARCHLIST customList">\
+                            <div class="CONTENT customListItem"></div>\
                         </div>\
                     </div>\
                 </div>';
 
                 $("#custom-template").prettySelect({
                     template: customTemplate,
-                    wrapperTemplate: "<div class='customWrapper'>",
-                    labelTemplate: "<div class='customLabel'>",
-                    listTemplate: "<div class='customList'>",
-                    listItemTemplate: "<div class='customListItem'>",
-                    itemRemoveTemplate: "<div class='customRemove'><span class='glyphicon glyphicon-remove'></span></div>",
                     customSearch: true
                 });
 
@@ -132,6 +131,21 @@
                     return false;
                 }
 
+
+                var contentTemplate = '\
+                <div class="WRAPPER form-control">\
+                    <div class="OPTIONS">\
+                        <table class="table table-bordered">\
+                            <tr><td colspan="2"><span class="REMOVE close">&times;</span></td>\
+                            <tr><td>Color title</td><td>Inverse color preview</td></tr>\
+                            <tr class="CONTENT"></tr>\
+                        </table>\
+                    </div>\
+                    <div class="SEARCHLIST">\
+                        <div class="CONTENT"></div>\
+                    </div>\
+                    <div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div>\
+                </div>';
                 $("#contentSelect").prettySelect({
                     optionsHandler: function () {
                         return {
@@ -143,12 +157,7 @@
                         };
                     },
                     listFilterHandler: contentFilter,
-                    labelTemplate: "\
-                        <table class='table table-bordered'>\
-                            <tr><td colspan='2'><div class='REMOVE'></div></td>\
-                            <tr><td>Color title</td><td>Inverse color preview</td></tr>\
-                            <tr class='CONTENT'></tr>\
-                        </table>",
+                    template: contentTemplate,
                     labelContent: contentLabel,
                     listItemContent: contentListItem,
                     allowDeselect: true
@@ -163,7 +172,7 @@
                     <div itemscope itemtype="http://schema.org/SoftwareApplication" class="page-header">
                         <h1 class="text-primary">
                             <span itemprop="name">Pretty Select</span> 
-                            <span itemprop="softwareVersion">v0.8</span> <small>by <a class="text-muted" href="http://zanecz.github.io/">
+                            <span itemprop="softwareVersion">v0.8.5</span> <small>by <a class="text-muted" href="http://zanecz.github.io/">
                                     <span itemprop="author" itemscope itemtype="http://schema.org/Person">
                                         <span itemprop="name">ZaneCZ</span></span></a></small></h1>
                         <div class="menuu container-fluid np">
@@ -178,7 +187,6 @@
                         <div class='alert alert-danger'>
                             <h2>Work in progress | <small>Current tasks:</small></h2>
                             <ul class="text-left">
-                                <li><small>Optimisation: </small>Merge all sub-templates into <code>template</code></li>
                                 <li><a href="#todoAddButton" class="text-danger">Add "add" button.</a></li>
                                 <li>Fill examples page</li>
                             </ul>
@@ -357,15 +365,18 @@
                                     </ul>
                                 </div>
                                 <div class="col-md-6">
-                                    <pre><code class="language-javascript">var defaultTemplate = &#39;\
-&lt;div class=&quot;WRAPPER&quot;&gt;\
-    &lt;div class=&quot;OPTIONS&quot;&gt;&lt;/div&gt;\
-    &lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
-    &lt;div class=&quot;SEARCHWRAP&quot;&gt;\
-        &lt;input class=&quot;SEARCH&quot;&gt;\
-        &lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;\
+                                    <pre><code class="language-javascript">var defaultTemplate = &#39;&lt;div class=&quot;WRAPPER form-control&quot;&gt;\
+    &lt;div class=&quot;OPTIONS&quot;&gt;\
+        &lt;span class=&quot;label label-primary&quot;&gt;\
+            &lt;span class=&quot;CONTENT&quot;&gt;&lt;/span&gt;\
+            &lt;span class=&quot;close REMOVE&quot;&gt;&amp;times;&lt;/span&gt;\
+        &lt;/span&gt;\
     &lt;/div&gt;\
-&lt;/div&gt;&#39;;
+    &lt;div class=&quot;SEARCHLIST&quot;&gt;\
+        &lt;div class=&quot;CONTENT&quot;&gt;&lt;/div&gt;\
+    &lt;/div&gt;\
+    &lt;div class=&quot;SEARCHWRAP&quot;&gt;&lt;input class=&quot;SEARCH&quot;&gt;&lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;&lt;/div&gt;\
+&lt;/div&gt;&#39;
 </code></pre>
                                 </div>
                             </div>
@@ -421,24 +432,23 @@ var options = $("select").prettySelect({
                         <div class="container-fluid" id="customTemplate">
                             <h2>Pretty Select with custom templates</h2>
                             <pre><code class="language-javascript">var customTemplate = &#39;\
-&lt;div class=&quot;WRAPPER&quot;&gt;\
+&lt;div class=&quot;WRAPPER customWrapper&quot;&gt;\
     &lt;h5&gt;Custom template&lt;h5&gt;\
-    &lt;div class=&quot;OPTIONS&quot;&gt;&lt;/div&gt;\
+    &lt;div class=&quot;OPTIONS&quot;&gt;\
+        &lt;div class=&quot;customLabel&quot;&gt;\
+            &lt;div class=&quot;REMOVE customRemove&quot;&gt;&lt;span class=&quot;glyphicon glyphicon-remove&quot;&gt;&lt;/span&gt;&lt;/div&gt;\
+        &lt;/div&gt;\
+    &lt;/div&gt;\
     &lt;div class=&quot;SEARCHWRAP&quot;&gt;\
-        &lt;div class=&quot;customSearchWrap&quot;&gt;\
-            &lt;input class=&quot;SEARCH&quot;&gt;\
-            &lt;div class=&quot;SEARCHLIST&quot;&gt;&lt;/div&gt;\
+        &lt;input class=&quot;SEARCH&quot;&gt;\
+        &lt;div class=&quot;SEARCHLIST customList&quot;&gt;\
+            &lt;div class=&quot;CONTENT customListItem&quot;&gt;&lt;/div&gt;\
         &lt;/div&gt;\
     &lt;/div&gt;\
 &lt;/div&gt;&#39;;
 </code></pre>
                             <pre><code class="language-javascript">$(&quot;select&quot;).prettySelect({
     template: customTemplate,
-    wrapperTemplate: &quot;&lt;div class=&#39;customWrapper&#39;&gt;&quot;,
-    labelTemplate: &quot;&lt;div class=&#39;customLabel&#39;&gt;&quot;,
-    listTemplate: &quot;&lt;div class=&#39;customList&#39;&gt;&quot;,
-    listItemTemplate: &quot;&lt;div class=&#39;customListItem&#39;&gt;&quot;,
-    itemRemoveTemplate: &quot;&lt;div class=&#39;customRemove&#39;&gt;&lt;span class=&#39;glyphicon glyphicon-remove&#39;&gt;&lt;/span&gt;&lt;/div&gt;&quot;,
     customSearch: true
 });
 </code></pre>
@@ -550,6 +560,21 @@ function contentFilter(searchText, content) {
     return false;
 }
 
+var contentTemplate = &#39;\
+&lt;div class=&quot;WRAPPER form-control&quot;&gt;\
+    &lt;div class=&quot;OPTIONS&quot;&gt;\
+        &lt;table class=&quot;table table-bordered&quot;&gt;\
+            &lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;span class=&quot;REMOVE close&quot;&gt;&amp;times;&lt;/span&gt;&lt;/td&gt;\
+            &lt;tr&gt;&lt;td&gt;Color title&lt;/td&gt;&lt;td&gt;Inverse color preview&lt;/td&gt;&lt;/tr&gt;\
+            &lt;tr class=&quot;CONTENT&quot;&gt;&lt;/tr&gt;\
+        &lt;/table&gt;\
+    &lt;/div&gt;\
+    &lt;div class=&quot;SEARCHLIST&quot;&gt;\
+        &lt;div class=&quot;CONTENT&quot;&gt;&lt;/div&gt;\
+    &lt;/div&gt;\
+    &lt;div class=&quot;SEARCHWRAP&quot;&gt;&lt;input class=&quot;SEARCH&quot;&gt;&lt;span class=&quot;glyphicon glyphicon-search&quot;&gt;&lt;/span&gt;&lt;/div&gt;\
+&lt;/div&gt;&#39;;
+
 $(&quot;select&quot;).prettySelect({
     optionsHandler: function () {
         return {
@@ -561,23 +586,13 @@ $(&quot;select&quot;).prettySelect({
         };
     },
     listFilterHandler: contentFilter,
-    labelTemplate: &quot;\
-        &lt;table class=&#39;table table-bordered&#39;&gt;\
-            &lt;tr&gt;&lt;td colspan=&#39;2&#39;&gt;&lt;div class=&#39;REMOVE&#39;&gt;&lt;/div&gt;&lt;/td&gt;\
-            &lt;tr&gt;&lt;td&gt;Color title&lt;/td&gt;&lt;td&gt;Inverse color preview&lt;/td&gt;&lt;/tr&gt;\
-            &lt;tr class=&#39;CONTENT&#39;&gt;&lt;/tr&gt;\
-        &lt;/table&gt;&quot;,
+    template: contentTemplate,
     labelContent: contentLabel,
-    listItemTemplate: "&lt;div&gt;&lt;div class=&#39;CONTENT&#39;&gt;&lt;/div&gt;&lt;/div&gt;",
     listItemContent: contentListItem,
     allowDeselect: true
 });
 </code></pre>
-                            <h3>Explanation</h3>
-                            <p class="lead">In labelTemplate <code>.CONTENT</code> gets replaced by what labelContent returns as an object, otherwise whole html of label is replaced.
-                                If <code>.REMOVE</code> is present, it gets replaced by itemRemoveTemplate, if not it gets appended to the end of label.
-                            </p>
-                            <p class="lead">In listItemTemplate <code>.CONTENT</code> works the same way as in labelTemplate.</p>
+                            <p><small>Uses custom filter for <code>content.title only.</code></small></p>
                             <select id="contentSelect"></select>
                         </div>
                     </div>
