@@ -348,7 +348,7 @@
                 {
                     var item = this.listItem(value);
                     var isSelected = ($.inArray(value.toString(), selected) != -1);
-                    var isDisabled = ($.inArray(value, disabled) != -1);
+                    var isDisabled = ($.inArray(value, disabled) != -1 || (typeof content.disabled !== 'undefined' && content.disabled == true));
                     if (isSelected)
                     {
                         item.addClass("selected");
