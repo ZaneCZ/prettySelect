@@ -412,6 +412,7 @@
 $("option").prop("disabled",true);
 </code></pre>
                                 <p><small>(Disable reacts direcly to the state of parent selectbox.)</small></p>
+                                <p>If you want to disable values passed in through <code>optionsHandler</code>, target option must contain <code>disabled:true</code>.</p>
                                 <button class="btn btn-warning" id="disSelect">Toggle select</button>
                                 <button class="btn btn-warning" id="disOptions">Toggle options</button>
                                 <select class="pretty" id="disable" multiple>
@@ -639,7 +640,7 @@ $(&quot;select&quot;).prettySelect({
     allowDeselect: true
 });
 </code></pre>
-                                <p><small>Uses custom filter for <code>content.title only.</code></small></p>
+                                <p><small>Uses custom filter for <code>content.title</code> only.</small></p>
                                 <select id="contentSelect"></select>
                             </div>
                         </div>
