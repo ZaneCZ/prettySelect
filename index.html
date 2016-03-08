@@ -56,7 +56,7 @@
 
                 var customTemplate = '\
                 <div class="WRAPPER customWrapper">\
-                    <h5>Custom template<h5>\
+                    <h5>Custom template</h5>\
                     <div class="OPTIONS">\
                         <div class="customLabel">\
                             <div class="REMOVE customRemove"><span class="glyphicon glyphicon-remove"></span></div>\
@@ -163,6 +163,32 @@
                     labelContent: contentLabel,
                     listItemContent: contentListItem,
                     allowDeselect: true
+                });
+
+                var disSelect = false;
+                var disOptions = false;
+                $("#disSelect").click(function () {
+                    if (disSelect)
+                    {
+                        $("#disable").prop("disabled", false);
+                        $(this).removeClass("active");
+                    } else {
+                        $("#disable").prop("disabled", true);
+                        $(this).addClass("active");
+                    }
+                    disSelect = !disSelect;
+                });
+                
+                $("#disOptions").click(function () {
+                    if (disOptions)
+                    {
+                        $(".dis").prop("disabled", false);
+                        $(this).removeClass("active");
+                    } else {
+                        $(".dis").prop("disabled", true);
+                        $(this).addClass("active");
+                    }
+                    disOptions = !disOptions;
                 });
             });
         </script>
@@ -379,8 +405,29 @@
                             </div>
                         </div>
                         <hr>
-                        <h2>Get options</h2>
-                        <pre><code class="language-javascript">if any of prettySelects exists
+                        <div class="row">
+                            <div class="container-fluid">
+                                <h2>With disabled options</h2>
+                                <pre><code class="language-javascript">$("select").prop("disabled",true);
+$("option").prop("disabled",true);
+</code></pre>
+                                <p><small>(Disable reacts direcly to the state of parent selectbox.)</small></p>
+                                <button class="btn btn-warning" id="disSelect">Toggle select</button>
+                                <button class="btn btn-warning" id="disOptions">Toggle options</button>
+                                <select class="pretty" id="disable" multiple>
+                                    <option value="html2" selected>Hypertext Markup Language</option>
+                                    <option value="js2" selected>Javascript</option>
+                                    <option value="css2">Cascading style sheet</option>
+                                    <option value="php2" class="dis">Hypertext Preprocessor</option>
+                                    <option value="sql2" class="dis">Structured Query Language</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="container-fluid">
+                                <h2>Get options</h2>
+                                <pre><code class="language-javascript">if any of prettySelects exists
 var options = $("select").prettySelect();
 else
 
@@ -392,44 +439,46 @@ var options = $("select").prettySelect({
     action: "options"
 });
 </code></pre>
-                        <h2>Get values</h2>
-                        <pre><code class="language-javascript">$("select").on("change",function(){
+                                <h2>Get values</h2>
+                                <pre><code class="language-javascript">$("select").on("change",function(){
     var value = $(this).val();
 }); 
 </code></pre>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <h3>Simple select <small>Current value: <code id="simple-value"></code></small></h3>
-                                <select class="pretty values" id="values-simple">
-                                    <option value="html">Hypertext Markup Language</option>
-                                    <option value="js" selected>Javascript</option>
-                                    <option value="css">Cascading style sheet</option>
-                                    <option value="php">Hypertext Preprocessor</option>
-                                    <option value="sql">Structured Query Language</option>
-                                </select>
-                                <pre class="well well-sm" id="values-simple-well"></pre>
-                            </div>
-                            <div class="col-sm-6">
-                                <h3>Multiple select <small>Current value: <code id="multiple-value"></code></small></h3>
-                                <select class="pretty values" id="values-multiple" multiple>
-                                    <option value="html2" selected>Hypertext Markup Language</option>
-                                    <option value="js2" selected>Javascript</option>
-                                    <option value="css2">Cascading style sheet</option>
-                                    <option value="php2">Hypertext Preprocessor</option>
-                                    <option value="sql2">Structured Query Language</option>
-                                </select>
-                                <pre class="well well-sm" id="values-multiple-well"></pre>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <h3>Simple select <small>Current value: <code id="simple-value"></code></small></h3>
+                                        <select class="pretty values" id="values-simple">
+                                            <option value="html">Hypertext Markup Language</option>
+                                            <option value="js" selected>Javascript</option>
+                                            <option value="css">Cascading style sheet</option>
+                                            <option value="php">Hypertext Preprocessor</option>
+                                            <option value="sql">Structured Query Language</option>
+                                        </select>
+                                        <pre class="well well-sm" id="values-simple-well"></pre>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <h3>Multiple select <small>Current value: <code id="multiple-value"></code></small></h3>
+                                        <select class="pretty values" id="values-multiple" multiple>
+                                            <option value="html2" selected>Hypertext Markup Language</option>
+                                            <option value="js2" selected>Javascript</option>
+                                            <option value="css2">Cascading style sheet</option>
+                                            <option value="php2">Hypertext Preprocessor</option>
+                                            <option value="sql2">Structured Query Language</option>
+                                        </select>
+                                        <pre class="well well-sm" id="values-multiple-well"></pre>
+                                    </div>
+                                </div>
+                                <h3>Options of multiple selects</h3>
+                                <pre class="well well-sm" id="values"></pre>
                             </div>
                         </div>
-                        <h3>Options of multiple selects</h3>
-                        <pre class="well well-sm" id="values"></pre>
                         <hr>
                         <div class="row">
                             <div class="container-fluid" id="customTemplate">
                                 <h2>Pretty Select with custom templates</h2>
                                 <pre><code class="language-javascript">var customTemplate = &#39;\
 &lt;div class=&quot;WRAPPER customWrapper&quot;&gt;\
-    &lt;h5&gt;Custom template&lt;h5&gt;\
+    &lt;h5&gt;Custom template&lt;/h5&gt;\
     &lt;div class=&quot;OPTIONS&quot;&gt;\
         &lt;div class=&quot;customLabel&quot;&gt;\
             &lt;div class=&quot;REMOVE customRemove&quot;&gt;&lt;span class=&quot;glyphicon glyphicon-remove&quot;&gt;&lt;/span&gt;&lt;/div&gt;\
@@ -619,7 +668,7 @@ $(&quot;select&quot;).prettySelect({
                                     </li>
                                     <li class="list-group-item" id="todoAddButton">
                                         <span class="hp label label-primary">High priority</span>
-                                        <h4>Optgroup and disabled support</h4>
+                                        <h4>Optgroup support</h4>
                                     </li>
                                     <li class="list-group-item">
                                         <h4>Add button</h4>
