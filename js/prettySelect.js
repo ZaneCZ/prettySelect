@@ -4,20 +4,26 @@
 
 (function ($) {
     $.fn.prettySelect = function (options) {
-        var defaultTemplate = '<div class="WRAPPER"><div class="OPTIONS"></div><div class="SEARCHLIST"></div><div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div></div>';
+        var defaultTemplate = '<div class="WRAPPER form-control">\
+    <div class="OPTIONS">\
+        <span class="label label-primary">\
+            <span class="CONTENT"></span>\
+            <span class="close REMOVE">&times;</span>\
+        </span>\
+    </div>\
+    <div class="SEARCHLIST">\
+        <div class="CONTENT"></div>\
+    </div>\
+    <div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div>\
+</div>';
 
         var settings = {
             action: "create",
             template: defaultTemplate,
-            wrapperTemplate: "<div class='form-control'>",
-            labelTemplate: "<span class='label label-primary'></span>",
             labelContent: labelContent,
-            listTemplate: "<div>",
-            listItemTemplate: "<div></div>",
             listItemContent: listItemContent,
-            itemRemoveTemplate: "<span class='close'>&times;</span>",
-            optionsHandler: null,
             listFilterHandler: filterList,
+            optionsHandler: null,
             customSearch: false,
             searchEnabled: true,
             searchDebounce: 150,
@@ -35,9 +41,11 @@
         var optionsList = function (prettySelect) {
             this.prettySelect = prettySelect;
             this.selected = [];
-            this.template = $("<div class='selectOptions'>");
-            this.labelTemplate = settings.labelTemplate;
-
+            
+            var psTemplate = prettySelect.element;
+            this.template = $(".OPTIONS",psTemplate).addClass("selectOptions").removeClass("OPTIONS");
+            this.labelTemplate = this.template.html();
+            this.template.html("");
 
             if (prettySelect.allowDeselect || prettySelect.multiple)
             {
@@ -106,6 +114,7 @@
                 }
                 labels = labels.add(label);
             }
+            console.log(labels);
             this.template.append(labels);
             prettySelect.loading(false);
         };
@@ -114,27 +123,24 @@
             var prettySelect = this.prettySelect;
             var label = $(this.labelTemplate);
             label.addClass('selectLabel').attr('id', 's' + value).val(value);
+
+            var remove = $(".REMOVE", label);
+            if (((prettySelect.multiple && !prettySelect.showAll) ||
+                    (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled)
+            {
+                remove.removeClass("REMOVE").addClass("selectRemove");
+            }else{
+                remove.remove();
+            }
+            
             var option = prettySelect.values[value];
             var content = settings.labelContent(option);
             var replace = $(".CONTENT", label);
             if (replace.length == 0)
             {
-                label.html(content);
+                label.prepend(content);
             } else {
                 replace.replaceWith(content);
-            }
-
-            if (((prettySelect.multiple && !prettySelect.showAll) ||
-                    (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled)
-            {
-                var removeTemp = $(".REMOVE", label);
-                var remove = $(settings.itemRemoveTemplate).addClass("selectRemove");
-                if (removeTemp.length == 0)
-                {
-                    label.append(remove);
-                } else {
-                    removeTemp.replaceWith(remove);
-                }
             }
 
             return label;
@@ -225,8 +231,11 @@
 
         var searchList = function (prettySelect) {
             this.prettySelect = prettySelect;
-            this.template = $(settings.listTemplate);
-            this.itemTemplate = settings.listItemTemplate;
+            
+            var psTemplate = prettySelect.element;
+            this.template = $(".SEARCHLIST",psTemplate);
+            this.itemTemplate = $('<div>').append($('.CONTENT',this.template).clone()).html();
+            this.template.html("");
 
             var self = this;
 
@@ -354,9 +363,8 @@
             this.showAll = settings.showAll;
             this.allowDeselect = settings.allowDeselect;
 
-            this.element = $("<div class='prettySelect'>");
-            this.template = $(settings.template);
-            this.wrapper = $(settings.wrapperTemplate);
+            this.element = $("<div class='prettySelect'>").html(settings.template);
+            this.wrapper = $(".WRAPPER",this.element).addClass("selectWrapper").removeClass("WRAPPER");
             this.optionsList = new optionsList(this);
             this.searchWrap = new searchWrap(this);
             this.searchList = new searchList(this);
@@ -543,27 +551,14 @@
         };
 
         prettySelect.prototype.render = function () {
-            var template = $("<div>").html($(this.template));
+            var template = this.element;
+            
             var el = this.element;
-
-            var tempWrapper = $(".WRAPPER", template);
-            var wrapper = this.wrapper;
-            wrapper.addClass("selectWrapper");
-            wrapper.html(tempWrapper.html());
-            tempWrapper.replaceWith(wrapper);
-
-            var tempOptions = $(".OPTIONS", template);
-            var options = this.optionsList.template;
-            options.html(tempOptions.html());
-            tempOptions.replaceWith(options);
 
             if (this.searchEnabled)
             {
-                var tempSearchList = $(".SEARCHLIST", template);
-                var searchList = this.searchList.template;
-                searchList.addClass("selectList");
-                searchList.html(tempSearchList.children());
-                tempSearchList.replaceWith(searchList);
+                var searchList = $(".SEARCHLIST", template);
+                searchList.addClass("selectList").removeClass("SEARCHLIST");
 
                 var tempSearchWrap = $(".SEARCHWRAP", template);
                 var searchWrap;
@@ -606,8 +601,6 @@
                 $(".SEARCHLIST, .SEARCHWRAP, .SEARCH", template).remove();
             }
 
-            $(el).html("");
-            $(el).append(template.children());
             $(el).insertAfter(this.selectBox);
 
             if (this.multiple)
@@ -715,7 +708,8 @@
                             }
                         });
                         object.addOptions(values);
-                        object.select(selected);
+                        object.selected = selected;
+                        //object.select(selected);
 
                         if (settings.optionsHandler != null && !settings.searchEnabled)
                         {
