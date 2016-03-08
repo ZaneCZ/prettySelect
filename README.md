@@ -1,4 +1,4 @@
-# Pretty Select v0.7
+# Pretty Select v0.8.5
 
 ### Documentation and examples can be found on [zanecz.github.io/prettySelect/](http://zanecz.github.io/prettySelect/)
 
@@ -37,3 +37,6 @@ You get full power over how your select boxes look like.
 
 #### Dynamic options loading
 It is possible to setup a function to insert options from other values or through AJAX. *(Connected with searchbar)*
+
+#### Extended values
+From v0.8.5 it is possible to load extended values instead of just text. *(This simplifies returning values form server, you can simply return array of values now)*
