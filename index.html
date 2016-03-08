@@ -63,9 +63,11 @@
                         </div>\
                     </div>\
                     <div class="SEARCHWRAP">\
-                        <input class="SEARCH">\
-                        <div class="SEARCHLIST customList">\
-                            <div class="CONTENT customListItem"></div>\
+                        <div class="customSearchWrap">\
+                            <input class="SEARCH">\
+                            <div class="SEARCHLIST customList">\
+                                <div class="CONTENT customListItem"></div>\
+                            </div>\
                         </div>\
                     </div>\
                 </div>';
@@ -246,13 +248,8 @@
                             <pre><code class="language-javascript">var settings = {
     action: &quot;create&quot;,
     template: defaultTemplate,
-    wrapperTemplate: &quot;&lt;div class=&#39;form-control&#39;&gt;&quot;,
-    labelTemplate: &quot;&lt;span class=&#39;label label-primary&#39;&gt;&lt;/div&gt;&quot;,
     labelContent: labelContent,
-    listTemplate: &quot;&lt;div&gt;&quot;,
-    listItemTemplate: &quot;&lt;div&gt;&lt;/div&gt;&quot;,
     listItemContent: listItemContent,
-    itemRemoveTemplate: &quot;&lt;span class=&#39;close&#39;&gt;&amp;times;&lt;/span&gt;&quot;,
     optionsHandler: null,
     listFilterHandler: filterList,
     customSearch: false,
@@ -273,33 +270,13 @@
                             <h4><a href="#templateExplanation">template</a> <small>[string]</small></h4>
                             <p>A main template putting everything together. <a href="#customTemplate">[Example]</a></p>
                         </div>
-                        <div>
-                            <h4>wrapperTemplate <small>[html string or jQuery object]</small></h4>
-                            <p>has class <code>prettySelect</code></p>
-                        </div>
-                        <div class="expl">
-                            <h4>labelTemplate <small>[html string or jQuery object]</small></h4>
-                            <p>has class <code>selectLabel</code></p>
-                        </div>
                         <div class="expl">
                             <h4><a href="#customContent">labelContent</a> <small>[function(content)]</small></h4>
                             <p>Function returning content for label. <code>content</code> is content of label to render. <small>(object or text depending on <code>optionsHandler</code>)</small></p>
                         </div>
                         <div class="expl">
-                            <h4>listTemplate <small>[html string or jQuery object]</small></h4>
-                            <p>has class <code>selectList</code></p>
-                        </div>
-                        <div class="expl">
-                            <h4>listItemTemplate <small>[html string or jQuery object]</small></h4>
-                            <p>has class <code>selectListItem</code></p>
-                        </div>
-                        <div class="expl">
                             <h4><a href="#customContent">listItemContent</a> <small>[function(content)]</small></h4>
                             <p>Function returning content for list item. <code>content</code> is content of list item to render. <small>(object or text depending on <code>optionsHandler</code>)</small></p>
-                        </div>
-                        <div class="expl">
-                            <h4>itemRemoveTemplate <small>[html string or jQuery object]</small></h4>
-                            <p>has class <code>close</code></p>
                         </div>
                         <div class="expl">
                             <h4>searchEnabled <small>[boolean]</small></h4>
@@ -353,18 +330,12 @@
                     <div class="row">
                         <div class="container-fluid">
                             <h2 id="templateExplanation">Template explanation</h2>
+                            <p class='lead'>All classes in uppercase are Pretty Select classes and are removed after template is rendered. 
+                                This template as a whole is afterwards wrapped in <code>&lt;div class=&quot;prettySelect&quot;&gt;&lt;/div&gt;</code> which is used for all control classes. <br>
+                                <small>(<code>.multiple</code> or <code>.simple</code> depending on type of selectbox and <code>.focused</code> when Pretty Select is focused.)</small>
+                            </p>
                             <div class="row">
-                                <div class="col-md-6">
-                                    <ul class="list-group">
-                                        <li class="list-group-item">.WRAPPER = settings.wrapperTemplate</li>
-                                        <li class="list-group-item">.OPTIONS = options wrapper <br><small>(contains settings.labelTemplate)</small></li>
-                                        <li class="list-group-item">.SEARCHLIST = settings.listTemplate</li>
-                                        <li class="list-group-item">.SEARCHWRAP = this element inherits style of settings.labelTemplate if <code>customSearch : false</code></li>
-                                        <li class="list-group-item">.SEARCH = searchbar gets implemented here if <code>searchEnabled : true</code></li>
-                                        <li class="list-group-item list-group-item-warning">template does not require any of these</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="np col-md-6 col-xs-12 pull-right">
                                     <pre><code class="language-javascript">var defaultTemplate = &#39;&lt;div class=&quot;WRAPPER form-control&quot;&gt;\
     &lt;div class=&quot;OPTIONS&quot;&gt;\
         &lt;span class=&quot;label label-primary&quot;&gt;\
@@ -379,12 +350,37 @@
 &lt;/div&gt;&#39;
 </code></pre>
                                 </div>
+                                <div class="expl">
+                                    <h4>.WRAPPER <small>gets class selectWrapper</small></h4>
+                                    <p>Main wrapper used for default css, in previous versions was used to bind events, now is optional.</p>
+                                </div>
+                                <div class="expl">
+                                    <h4>.OPTIONS <small>gets class selectOptions</small></h4>
+                                    <p>Options is a wrapper of all selected options (+ unselected if <code>showAll:true</code>).</p>
+                                    <h4>Label <small>gets class selectLabel</small></h4>
+                                    <p>First element in <code>.OPTIONS</code> is considered label template.</p>
+                                    <p><code>.CONTENT</code> is optional, it gets filled with items from <code>labelContent</code>, if it doesn't exist content gets prepended in the label.</p>
+                                    <p><code>.REMOVE</code> is optional, gets appended by class <code>selectRemove</code>.</p>
+                                </div>
+                                <div class="expl">
+                                    <h4>.SEARCHLIST <small>gets class selectList</small></h4>
+                                    <p>This is used as wrapper for search values. Not required if <code>showAll:true</code>.</p>
+                                    <h4>.CONTENT <small>gets class selectListItem</small></h4>
+                                    <p>Gets filled with content from <code>listItemContent</code>.</p>
+                                </div>
+                                <div class="expl">
+                                    <h4>.SEARCHWRAP <small>gets class searchWrap</small></h4>
+                                    <p>Searchwrap is optional. Use it, if you want your searchbar to inherit style of label.</p>
+                                </div>
+                                <div class="expl">
+                                    <h4>.SEARCH <small>gets class selectSearch</small></h4>
+                                    <p>This class is only used to target for searchbar and to bind events.</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <hr>
-                    <h2>Get options</h2>
-                    <pre><code class="language-javascript">if any of prettySelects exists
+                        <hr>
+                        <h2>Get options</h2>
+                        <pre><code class="language-javascript">if any of prettySelects exists
 var options = $("select").prettySelect();
 else
 
@@ -396,42 +392,42 @@ var options = $("select").prettySelect({
     action: "options"
 });
 </code></pre>
-                    <h2>Get values</h2>
-                    <pre><code class="language-javascript">$("select").on("change",function(){
+                        <h2>Get values</h2>
+                        <pre><code class="language-javascript">$("select").on("change",function(){
     var value = $(this).val();
 }); 
 </code></pre>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h3>Simple select <small>Current value: <code id="simple-value"></code></small></h3>
-                            <select class="pretty values" id="values-simple">
-                                <option value="html">Hypertext Markup Language</option>
-                                <option value="js" selected>Javascript</option>
-                                <option value="css">Cascading style sheet</option>
-                                <option value="php">Hypertext Preprocessor</option>
-                                <option value="sql">Structured Query Language</option>
-                            </select>
-                            <pre class="well well-sm" id="values-simple-well"></pre>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h3>Simple select <small>Current value: <code id="simple-value"></code></small></h3>
+                                <select class="pretty values" id="values-simple">
+                                    <option value="html">Hypertext Markup Language</option>
+                                    <option value="js" selected>Javascript</option>
+                                    <option value="css">Cascading style sheet</option>
+                                    <option value="php">Hypertext Preprocessor</option>
+                                    <option value="sql">Structured Query Language</option>
+                                </select>
+                                <pre class="well well-sm" id="values-simple-well"></pre>
+                            </div>
+                            <div class="col-sm-6">
+                                <h3>Multiple select <small>Current value: <code id="multiple-value"></code></small></h3>
+                                <select class="pretty values" id="values-multiple" multiple>
+                                    <option value="html2" selected>Hypertext Markup Language</option>
+                                    <option value="js2" selected>Javascript</option>
+                                    <option value="css2">Cascading style sheet</option>
+                                    <option value="php2">Hypertext Preprocessor</option>
+                                    <option value="sql2">Structured Query Language</option>
+                                </select>
+                                <pre class="well well-sm" id="values-multiple-well"></pre>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <h3>Multiple select <small>Current value: <code id="multiple-value"></code></small></h3>
-                            <select class="pretty values" id="values-multiple" multiple>
-                                <option value="html2" selected>Hypertext Markup Language</option>
-                                <option value="js2" selected>Javascript</option>
-                                <option value="css2">Cascading style sheet</option>
-                                <option value="php2">Hypertext Preprocessor</option>
-                                <option value="sql2">Structured Query Language</option>
-                            </select>
-                            <pre class="well well-sm" id="values-multiple-well"></pre>
-                        </div>
-                    </div>
-                    <h3>Options of multiple selects</h3>
-                    <pre class="well well-sm" id="values"></pre>
-                    <hr>
-                    <div class="row">
-                        <div class="container-fluid" id="customTemplate">
-                            <h2>Pretty Select with custom templates</h2>
-                            <pre><code class="language-javascript">var customTemplate = &#39;\
+                        <h3>Options of multiple selects</h3>
+                        <pre class="well well-sm" id="values"></pre>
+                        <hr>
+                        <div class="row">
+                            <div class="container-fluid" id="customTemplate">
+                                <h2>Pretty Select with custom templates</h2>
+                                <pre><code class="language-javascript">var customTemplate = &#39;\
 &lt;div class=&quot;WRAPPER customWrapper&quot;&gt;\
     &lt;h5&gt;Custom template&lt;h5&gt;\
     &lt;div class=&quot;OPTIONS&quot;&gt;\
@@ -440,63 +436,65 @@ var options = $("select").prettySelect({
         &lt;/div&gt;\
     &lt;/div&gt;\
     &lt;div class=&quot;SEARCHWRAP&quot;&gt;\
-        &lt;input class=&quot;SEARCH&quot;&gt;\
-        &lt;div class=&quot;SEARCHLIST customList&quot;&gt;\
-            &lt;div class=&quot;CONTENT customListItem&quot;&gt;&lt;/div&gt;\
+        &lt;div class=&quot;customSearchWrap&quot;&gt;\
+            &lt;input class=&quot;SEARCH&quot;&gt;\
+            &lt;div class=&quot;SEARCHLIST customList&quot;&gt;\
+                &lt;div class=&quot;CONTENT customListItem&quot;&gt;&lt;/div&gt;\
+            &lt;/div&gt;\
         &lt;/div&gt;\
     &lt;/div&gt;\
 &lt;/div&gt;&#39;;
 </code></pre>
-                            <pre><code class="language-javascript">$(&quot;select&quot;).prettySelect({
+                                <pre><code class="language-javascript">$(&quot;select&quot;).prettySelect({
     template: customTemplate,
     customSearch: true
 });
 </code></pre>
-                            <select id="custom-template" multiple>
-                                <option value="html2" selected>Hypertext Markup Language</option>
-                                <option value="js2" selected>Javascript</option>
-                                <option value="css2">Cascading style sheet</option>
-                                <option value="php2">Hypertext Preprocessor</option>
-                                <option value="sql2">Structured Query Language</option>
-                            </select>
+                                <select id="custom-template" multiple>
+                                    <option value="html2" selected>Hypertext Markup Language</option>
+                                    <option value="js2" selected>Javascript</option>
+                                    <option value="css2">Cascading style sheet</option>
+                                    <option value="php2">Hypertext Preprocessor</option>
+                                    <option value="sql2">Structured Query Language</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="container-fluid">
-                            <h2>Pretty Select without searchbar</h2>
-                            <pre><code class="language-javascript">$(".nosearch").prettySelect({
+                        <hr>
+                        <div class="row">
+                            <div class="container-fluid">
+                                <h2>Pretty Select without searchbar</h2>
+                                <pre><code class="language-javascript">$(".nosearch").prettySelect({
     searchEnabled: false
 });
 </code></pre>
+                            </div>
+                            <div class="col-sm-6">
+                                <h3>Simple select</h3>
+                                <select class="nosearch">
+                                    <option value="html">Hypertext Markup Language</option>
+                                    <option value="js" selected>Javascript</option>
+                                    <option value="css">Cascading style sheet</option>
+                                    <option value="php">Hypertext Preprocessor</option>
+                                    <option value="sql">Structured Query Language</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <h3>Multiple select</h3>
+                                <select class="nosearch" multiple>
+                                    <option value="html2" selected>Hypertext Markup Language</option>
+                                    <option value="js2" selected>Javascript</option>
+                                    <option value="css2">Cascading style sheet</option>
+                                    <option value="php2">Hypertext Preprocessor</option>
+                                    <option value="sql2">Structured Query Language</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <h3>Simple select</h3>
-                            <select class="nosearch">
-                                <option value="html">Hypertext Markup Language</option>
-                                <option value="js" selected>Javascript</option>
-                                <option value="css">Cascading style sheet</option>
-                                <option value="php">Hypertext Preprocessor</option>
-                                <option value="sql">Structured Query Language</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6">
-                            <h3>Multiple select</h3>
-                            <select class="nosearch" multiple>
-                                <option value="html2" selected>Hypertext Markup Language</option>
-                                <option value="js2" selected>Javascript</option>
-                                <option value="css2">Cascading style sheet</option>
-                                <option value="php2">Hypertext Preprocessor</option>
-                                <option value="sql2">Structured Query Language</option>
-                            </select>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="container-fluid">
-                            <h2>Pretty Select with custom values<br>
-                                <small>(extreme debounce time)</small></h2>
-                            <pre><code class="language-javascript">function customValues(wrapper, searchText) {
+                        <hr>
+                        <div class="row">
+                            <div class="container-fluid">
+                                <h2>Pretty Select with custom values<br>
+                                    <small>(extreme debounce time)</small></h2>
+                                <pre><code class="language-javascript">function customValues(wrapper, searchText) {
     return $.ajax(url);
 };
 
@@ -505,21 +503,21 @@ $("select").prettySelect({
     searchDebounce: 500
 });
 </code></pre>
+                            </div>
+                            <div class="col-sm-6">
+                                <h3>With search</h3>
+                                <select id="customValues"></select>
+                            </div>
+                            <div class="col-sm-6">
+                                <h3>Without search</h3>
+                                <select id="customValuesNoSearch" multiple></select>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <h3>With search</h3>
-                            <select id="customValues"></select>
-                        </div>
-                        <div class="col-sm-6">
-                            <h3>Without search</h3>
-                            <select id="customValuesNoSearch" multiple></select>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="container-fluid">
-                            <h2>Pretty Select with custom filter</h2>
-                            <pre><code class="language-javascript">function customFilter(searchText, value)
+                        <hr>
+                        <div class="row">
+                            <div class="container-fluid">
+                                <h2>Pretty Select with custom filter</h2>
+                                <pre><code class="language-javascript">function customFilter(searchText, value)
 {
     if(value.indexOf(searchText) != -1)
     {
@@ -533,20 +531,20 @@ $("select").prettySelect({
     searchDebounce: 0
 });
 </code></pre>
-                            <h3><small>Custom case sensitive filter</small></h3>
-                            <select id="customFilter" multiple>
-                                <option value="html2" selected>Hypertext Markup Language</option>
-                                <option value="js2" selected>Javascript</option>
-                                <option value="css2">Cascading style sheet</option>
-                                <option value="php2">Hypertext Preprocessor</option>
-                                <option value="sql2">Structured Query Language</option>
-                            </select>
+                                <h3><small>Custom case sensitive filter</small></h3>
+                                <select id="customFilter" multiple>
+                                    <option value="html2" selected>Hypertext Markup Language</option>
+                                    <option value="js2" selected>Javascript</option>
+                                    <option value="css2">Cascading style sheet</option>
+                                    <option value="php2">Hypertext Preprocessor</option>
+                                    <option value="sql2">Structured Query Language</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row" id="customContent">
-                        <div class="container-fluid">
-                            <h2>Custom content usage <br><small>(This example is really stupid, but good for preview.)</small></h2>
-                            <pre><code class="language-javascript">function contentListItem(content) {
+                        <div class="row" id="customContent">
+                            <div class="container-fluid">
+                                <h2>Custom content usage <br><small>(This example is really stupid, but good for preview.)</small></h2>
+                                <pre><code class="language-javascript">function contentListItem(content) {
     return content.title;
 }
 
@@ -592,69 +590,69 @@ $(&quot;select&quot;).prettySelect({
     allowDeselect: true
 });
 </code></pre>
-                            <p><small>Uses custom filter for <code>content.title only.</code></small></p>
-                            <select id="contentSelect"></select>
+                                <p><small>Uses custom filter for <code>content.title only.</code></small></p>
+                                <select id="contentSelect"></select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row ad">
-                        <div class="container-fluid">
-                            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                            <!-- r1 -->
-                            <ins class="adsbygoogle"
-                                 style="display:block"
-                                 data-ad-client="ca-pub-3802342264915765"
-                                 data-ad-slot="8099621934"
-                                 data-ad-format="auto"></ins>
-                            <script>
+                        <div class="row ad">
+                            <div class="container-fluid">
+                                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                                <!-- r1 -->
+                                <ins class="adsbygoogle"
+                                     style="display:block"
+                                     data-ad-client="ca-pub-3802342264915765"
+                                     data-ad-slot="8099621934"
+                                     data-ad-format="auto"></ins>
+                                <script>
             (adsbygoogle = window.adsbygoogle || []).push({});
-                            </script>
+                                </script>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="container-fluid">
-                            <h2>To-Do list</h2>
-                            <ul class="list-group">
-                                <li class="list-group-item">
-                                    <span class="hp label label-primary">High priority</span>
-                                    <h4>Optimisation</h4>
-                                    <p>I am not quite experienced with javascript, so there are possibly things that could be done better.</p>
-                                </li>
-                                <li class="list-group-item" id="todoAddButton">
-                                    <span class="hp label label-primary">High priority</span>
-                                    <h4>Optgroup and disabled support</h4>
-                                </li>
-                                <li class="list-group-item">
-                                    <h4>Add button</h4>
-                                    <p>Add button will allow you to add new values in the select box. Pretty useful for administration part of your website.</p>
-                                </li>
-                                <li class="list-group-item">
-                                    <h4>Order options</h4>
-                                    <p>Adding possibility to order options by any of their values.</p>
-                                </li>
-                            </ul>
+                        <div class="row">
+                            <div class="container-fluid">
+                                <h2>To-Do list</h2>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <span class="hp label label-primary">High priority</span>
+                                        <h4>Optimisation</h4>
+                                        <p>I am not quite experienced with javascript, so there are possibly things that could be done better.</p>
+                                    </li>
+                                    <li class="list-group-item" id="todoAddButton">
+                                        <span class="hp label label-primary">High priority</span>
+                                        <h4>Optgroup and disabled support</h4>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <h4>Add button</h4>
+                                        <p>Add button will allow you to add new values in the select box. Pretty useful for administration part of your website.</p>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <h4>Order options</h4>
+                                        <p>Adding possibility to order options by any of their values.</p>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="container-fluid">
-                            <h2>About</h2>
-                            <p class="lead">
-                                I am a 19 year old student from Czech Republic, who is trying to improve as much as possible.
-                                I am working on a personal project where I needed some way to load data through AJAX to selectbox but couldn't find anything online.
-                                Because of that I decided to create this and thought that other developers might find this useful too.
-                            </p>
-                            <p class='lead'>
-                                Also I would be most thankful for any help, response or ideas of how to improve this.
-                            </p>
+                        <div class="row">
+                            <div class="container-fluid">
+                                <h2>About</h2>
+                                <p class="lead">
+                                    I am a 19 year old student from Czech Republic, who is trying to improve as much as possible.
+                                    I am working on a personal project where I needed some way to load data through AJAX to selectbox but couldn't find anything online.
+                                    Because of that I decided to create this and thought that other developers might find this useful too.
+                                </p>
+                                <p class='lead'>
+                                    Also I would be most thankful for any help, response or ideas of how to improve this.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                    <div class='row'>
-                        <hr>
-                        <div class='container-fluid'>
-                            Developed by <a href="http://zanecz.github.io/">"Zane" Loučka</a>
+                        <div class='row'>
+                            <hr>
+                            <div class='container-fluid'>
+                                Developed by <a href="http://zanecz.github.io/">"Zane" Loučka</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
     </body>
 </html>

@@ -1,6 +1,6 @@
 //Copyright (c) 2016 ZaneCZ
 //Developed by ZaneCZ under MIT licence
-//v0.8
+//v0.8.5
 
 (function ($) {
     $.fn.prettySelect = function (options) {
@@ -333,7 +333,7 @@
 
         searchList.prototype.listItem = function (value) {
             var item = $(this.itemTemplate);
-            item.addClass("selectListItem");
+            item.addClass("selectListItem").removeClass("CONTENT");
             item.attr("id", "i" + value);
             item.val(value);
             var option = this.prettySelect.values[value];
