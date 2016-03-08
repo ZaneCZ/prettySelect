@@ -40,3 +40,6 @@ It is possible to setup a function to insert options from other values or throug
 
 #### Extended values
 From v0.8.5 it is possible to load extended values instead of just text. *(This simplifies returning values form server, you can simply return array of values now)*
+
+#### Disabled support
+From v0.8.5 it is possible to pass in disabled values.
