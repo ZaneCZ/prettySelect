@@ -1,8 +1,19 @@
 //Copyright (c) 2016 ZaneCZ
 //Developed by ZaneCZ under MIT licence
-//v0.8
+//v0.8.5
 
 (function ($) {
+    $.propHooks.disabled = {
+        set: function (el, value) {
+            if (value)
+            {
+                $(el).triggerHandler('disabled');
+            } else {
+                $(el).triggerHandler('enabled');
+            }
+        }
+    }
+
     $.fn.prettySelect = function (options) {
         var defaultTemplate = '<div class="WRAPPER form-control">\
     <div class="OPTIONS">\
@@ -41,20 +52,20 @@
         var optionsList = function (prettySelect) {
             this.prettySelect = prettySelect;
             this.selected = [];
-            
+
             var psTemplate = prettySelect.element;
-            this.template = $(".OPTIONS",psTemplate).addClass("selectOptions").removeClass("OPTIONS");
+            this.template = $(".OPTIONS", psTemplate).addClass("selectOptions").removeClass("OPTIONS");
             this.labelTemplate = this.template.html();
             this.template.html("");
 
             if (prettySelect.allowDeselect || prettySelect.multiple)
             {
-                this.template.on("click", ".selectLabel .selectRemove", function (e) {
+                this.template.on("click", ".selectLabel:not(.disabled) .selectRemove", function (e) {
                     e.preventDefault()
                     prettySelect.unselect($(this).closest(".selectLabel"));
                 });
 
-                this.template.on("dblclick", ".selectLabel.selected", function (e) {
+                this.template.on("dblclick", ".selectLabel.selected:not(.disabled)", function (e) {
                     e.preventDefault()
                     prettySelect.unselect($(this));
                 });
@@ -62,15 +73,25 @@
 
             if (((!prettySelect.multiple && prettySelect.allowDeselect) || (prettySelect.multiple)) && (!prettySelect.searchEnabled || prettySelect.showAll))
             {
-                this.template.on("click", ".selectLabel.selected", function (e) {
+                this.template.on("click", ".selectLabel.selected:not(.disabled)", function (e) {
                     e.preventDefault();
                     prettySelect.unselect($(this));
                 });
             }
 
-            this.template.on("click", ".selectLabel.unselected", function (e) {
+            this.template.on("click", ".selectLabel.unselected:not(.disabled)", function (e) {
                 e.preventDefault()
                 prettySelect.selectItem($(this));
+            });
+
+            var select = prettySelect.selectBox;
+            $("option", select).on("disabled", function (e) {
+                prettySelect.disableOption(this);
+                e.stopPropagation();
+            });
+            $("option", select).on("enabled", function (e) {
+                prettySelect.enableOption(this);
+                e.stopPropagation();
             });
 
             return this;
@@ -80,11 +101,13 @@
             var prettySelect = this.prettySelect;
             var values = prettySelect.values;
             var selected = prettySelect.selected;
+            var disabled = prettySelect.disabled;
             prettySelect.loading(true);
             var labels = $();
             for (var value in values)
             {
                 var isSelected = ($.inArray(value, selected) != -1);
+                var isDisabled = ($.inArray(value, disabled) != -1);
                 var label = this.label(value);
                 if (prettySelect.showAll || !prettySelect.searchEnabled)
                 {
@@ -93,6 +116,10 @@
                         label.addClass('selected');
                     } else {
                         label.addClass('unselected');
+                    }
+                    if (isDisabled)
+                    {
+                        label.addClass('disabled');
                     }
                 } else {
                     if (!isSelected)
@@ -114,7 +141,6 @@
                 }
                 labels = labels.add(label);
             }
-            console.log(labels);
             this.template.append(labels);
             prettySelect.loading(false);
         };
@@ -129,10 +155,10 @@
                     (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled)
             {
                 remove.removeClass("REMOVE").addClass("selectRemove");
-            }else{
+            } else {
                 remove.remove();
             }
-            
+
             var option = prettySelect.values[value];
             var content = settings.labelContent(option);
             var replace = $(".CONTENT", label);
@@ -231,10 +257,10 @@
 
         var searchList = function (prettySelect) {
             this.prettySelect = prettySelect;
-            
+
             var psTemplate = prettySelect.element;
-            this.template = $(".SEARCHLIST",psTemplate);
-            this.itemTemplate = $('<div>').append($('.CONTENT',this.template).clone()).html();
+            this.template = $(".SEARCHLIST", psTemplate);
+            this.itemTemplate = $('<div>').append($('.CONTENT', this.template).clone()).html();
             this.template.html("");
 
             var self = this;
@@ -242,7 +268,7 @@
             var lastClicked = null;
             var shiftSelected = $();
 
-            this.template.on("click", ".selectListItem:not(.selected)", function (e) {
+            this.template.on("click", ".selectListItem:not(.selected, .disabled)", function (e) {
                 if (prettySelect.multiple)
                 {
                     var newSelected = $(this);
@@ -275,7 +301,7 @@
                 }
             });
 
-            this.template.on("click", ".selectListItem.selected", function (e) {
+            this.template.on("click", ".selectListItem.selected:not(.disabled)", function (e) {
                 if (!e.shiftKey || lastClicked === null)
                 {
                     lastClicked = this;
@@ -304,6 +330,7 @@
 
         searchList.prototype.fillList = function (values, search) {
             var prettySelect = this.prettySelect;
+            var disabled = prettySelect.disabled;
             var template = this.template;
             var valuesTemp = prettySelect.values;
             for (var attrname in values) {
@@ -321,9 +348,14 @@
                 {
                     var item = this.listItem(value);
                     var isSelected = ($.inArray(value.toString(), selected) != -1);
+                    var isDisabled = ($.inArray(value, disabled) != -1);
                     if (isSelected)
                     {
                         item.addClass("selected");
+                    }
+                    if (isDisabled)
+                    {
+                        item.addClass("disabled");
                     }
                     items = items.add(item);
                 }
@@ -333,7 +365,7 @@
 
         searchList.prototype.listItem = function (value) {
             var item = $(this.itemTemplate);
-            item.addClass("selectListItem");
+            item.addClass("selectListItem").removeClass("CONTENT");
             item.attr("id", "i" + value);
             item.val(value);
             var option = this.prettySelect.values[value];
@@ -357,6 +389,7 @@
             this.placeholder = "search";
             this.values = {};
             this.selected = [];
+            this.disabled = [];
             this.optionsHandler = settings.optionsHandler;
 
             this.searchEnabled = settings.searchEnabled;
@@ -364,10 +397,27 @@
             this.allowDeselect = settings.allowDeselect;
 
             this.element = $("<div class='prettySelect'>").html(settings.template);
-            this.wrapper = $(".WRAPPER",this.element).addClass("selectWrapper").removeClass("WRAPPER");
+            this.wrapper = $(".WRAPPER", this.element).addClass("selectWrapper").removeClass("WRAPPER");
             this.optionsList = new optionsList(this);
             this.searchWrap = new searchWrap(this);
             this.searchList = new searchList(this);
+
+            var self = this;
+            $(select).on("disabled", function () {
+                self.element.addClass("disabled");
+            });
+            $(select).on("enabled", function () {
+                self.element.removeClass("disabled");
+            });
+
+            this.element.on("click", function (e) {
+                if ($(select).is(":disabled"))
+                {
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
 
             return this;
         };
@@ -550,9 +600,31 @@
             parent.trigger("change");
         };
 
+        prettySelect.prototype.disableOption = function (option) {
+            var value = $(option).val();
+            var pos = $.inArray(value.toString(), this.disabled);
+            if (pos == -1)
+            {
+                $(".selectLabel#s" + value, this.optionsList.template).addClass("disabled");
+                $(".selectListItem#i" + value, this.searchList.template).addClass("disabled");
+                this.disabled.push(value);//.splice(pos, 1);
+            }
+        };
+        
+        prettySelect.prototype.enableOption = function (option) {
+            var value = $(option).val();
+            var pos = $.inArray(value.toString(), this.disabled);
+            if (pos != -1)
+            {
+                $(".selectLabel#s" + value, this.optionsList.template).removeClass("disabled");
+                $(".selectListItem#i" + value, this.searchList.template).removeClass("disabled");
+                this.disabled.splice(pos, 1);
+            }
+        };
+
         prettySelect.prototype.render = function () {
             var template = this.element;
-            
+
             var el = this.element;
 
             if (this.searchEnabled)
@@ -578,8 +650,6 @@
                 tempSearchbar.replaceWith(input);
 
                 this.searchWrap.searchValues();
-
-                var prettySelect = this;
 
                 var stayFocused = false;
 
@@ -693,6 +763,7 @@
                         var options = $("option", this);
                         var values = {};
                         var selected = [];
+                        var disabled = [];
                         options.each(function () {
                             var val = $(this).val();
                             var text = $(this).text()
@@ -704,12 +775,20 @@
                                 {
                                     selected.push(val);
                                 }
+                                if ($(this).is(":disabled"))
+                                {
+                                    disabled.push(val);
+                                }
                                 values[val] = text;
                             }
                         });
                         object.addOptions(values);
                         object.selected = selected;
-                        //object.select(selected);
+                        object.disabled = disabled;
+                        if ($(this).is(":disabled"))
+                        {
+                            object.element.addClass("disabled");
+                        }
 
                         if (settings.optionsHandler != null && !settings.searchEnabled)
                         {

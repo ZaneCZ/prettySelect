@@ -5,6 +5,22 @@
     position: relative;
 }
 
+.prettySelect.disabled{
+    cursor: not-allowed!important;
+    overflow: hidden;
+}
+.prettySelect.disabled:after{
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: .5;
+}
+
 .prettySelect .selectWrapper{
     padding: 4px 4px 0;
     float: left;
@@ -123,6 +139,12 @@
 
 .prettySelect .selectWrapper .selectList .selectListItem.selected{
     background-color: #ccc;
+}
+
+.prettySelect .selectWrapper .selectLabel.disabled,.prettySelect .selectList .selectListItem.disabled{
+    color: #ccc!important;
+    background-color: #999!important;
+    cursor: not-allowed!important;
 }
 
 .prettySelect .selectWrapper .selectList .noItems{
