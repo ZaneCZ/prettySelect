@@ -17,13 +17,17 @@
     $.fn.prettySelect = function (options) {
         var defaultTemplate = '<div class="WRAPPER form-control">\
     <div class="OPTIONS">\
-        <span class="label label-primary">\
-            <span class="CONTENT"></span>\
-            <span class="close REMOVE">&times;</span>\
-        </span>\
+        <div class="OPTGROUP">\
+            <span class="LABEL label label-primary">\
+                <span class="CONTENT"></span>\
+                <span class="close REMOVE">&times;</span>\
+            </span>\
+        </div>\
     </div>\
     <div class="SEARCHLIST">\
-        <div class="CONTENT"></div>\
+        <div class="OPTGROUP">\
+            <div class="CONTENT"></div>\
+        </div>\
     </div>\
     <div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div>\
 </div>';
@@ -49,13 +53,39 @@
             settings.action = options;
         }
 
+        var optGroup = function (select, id, title) {
+            this.prettySelect = select;
+            this.id = id;
+            this.title = title;
+            this.values = {};
+
+            return this;
+        };
+        
+        var optionData = function (value, content, group){
+            this.value = value;
+            this.content = content;
+            this.group = group;
+            
+            return this;
+        };
+        
         var optionsList = function (prettySelect) {
             this.prettySelect = prettySelect;
             this.selected = [];
 
             var psTemplate = prettySelect.element;
             this.template = $(".OPTIONS", psTemplate).addClass("selectOptions").removeClass("OPTIONS");
-            this.labelTemplate = this.template.html();
+            var group = $(".OPTGROUP", this.template).clone().addClass("selectGroup").removeClass("OPTGROUP");
+            if (group.length !== 0)
+            {
+                var label = $(".LABEL", group);
+                label.replaceWith("<div class='groupItems'>");
+                this.groupTemplate = $('<div>').append(group).html();
+                this.labelTemplate = $('<div>').append($(".LABEL", this.template).clone().removeClass("LABEL")).html();
+            } else {
+                this.labelTemplate = this.template.html();
+            }
             this.template.html("");
 
             if (prettySelect.allowDeselect || prettySelect.multiple)
@@ -97,52 +127,75 @@
             return this;
         };
 
-        optionsList.prototype.render = function () {
+        optionsList.prototype.render = function (group) {
             var prettySelect = this.prettySelect;
-            var values = prettySelect.values;
+            if (typeof group == 'undefined')
+            {
+                var values = prettySelect.values;
+                prettySelect.loading(true);
+            } else {
+                var values = group.values;
+            }
             var selected = prettySelect.selected;
             var disabled = prettySelect.disabled;
-            prettySelect.loading(true);
             var labels = $();
             for (var value in values)
             {
-                var isSelected = ($.inArray(value, selected) != -1);
-                var isDisabled = ($.inArray(value, disabled) != -1);
-                var label = this.label(value);
-                if (prettySelect.showAll || !prettySelect.searchEnabled)
+                if (values[value] instanceof optGroup)
                 {
-                    if (isSelected)
-                    {
-                        label.addClass('selected');
-                    } else {
-                        label.addClass('unselected');
-                    }
-                    if (isDisabled)
-                    {
-                        label.addClass('disabled');
-                    }
+                    var label = this.render(values[value]);
                 } else {
-                    if (!isSelected)
+                    var isSelected = ($.inArray(value, selected) != -1);
+                    var isDisabled = ($.inArray(value, disabled) != -1);
+                    var label = this.label(value);
+                    if (prettySelect.showAll || !prettySelect.searchEnabled)
                     {
-                        continue;
-                    }
-                    label.addClass('selected');
-                }
-
-                if (!(((prettySelect.multiple && !prettySelect.showAll) ||
-                        (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled))
-                {
-                    if (prettySelect.searchEnabled)
-                    {
-                        $(".selectLabel", this.template).remove();
+                        if (isSelected)
+                        {
+                            label.addClass('selected');
+                        } else {
+                            label.addClass('unselected');
+                        }
+                        if (isDisabled)
+                        {
+                            label.addClass('disabled');
+                        }
                     } else {
-                        $(".selectLabel#s" + value, this.template).removeClass("selected");
+                        if (!isSelected)
+                        {
+                            continue;
+                        }
+                        label.addClass('selected');
+                    }
+
+                    if (!(((prettySelect.multiple && !prettySelect.showAll) ||
+                            (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled))
+                    {
+                        if (prettySelect.searchEnabled)
+                        {
+                            $(".selectLabel", this.template).remove();
+                        } else {
+                            $(".selectLabel#s" + value, this.template).removeClass("selected");
+                        }
                     }
                 }
                 labels = labels.add(label);
             }
-            this.template.append(labels);
-            prettySelect.loading(false);
+            if (typeof group == 'undefined')
+            {
+                this.template.append(labels);
+                prettySelect.loading(false);
+            } else {
+                if (prettySelect.multiple)
+                {
+                    var el = $(this.groupTemplate);
+                    $(".groupItems", el).append(labels);
+                    el.prepend($("<span class='groupLabel'>").text(group.title));
+                    return el;
+                } else {
+                    return labels;
+                }
+            }
         };
 
         optionsList.prototype.label = function (value) {
@@ -159,8 +212,8 @@
                 remove.remove();
             }
 
-            var option = prettySelect.values[value];
-            var content = settings.labelContent(option);
+            var option = prettySelect.optionsData[value];
+            var content = settings.labelContent(option.content);
             var replace = $(".CONTENT", label);
             if (replace.length == 0)
             {
@@ -260,7 +313,14 @@
 
             var psTemplate = prettySelect.element;
             this.template = $(".SEARCHLIST", psTemplate);
-            this.itemTemplate = $('<div>').append($('.CONTENT', this.template).clone()).html();
+            var group = $(".OPTGROUP", this.template).clone().addClass("selectGroup").removeClass("OPTGROUP");
+            if (group.length !== 0)
+            {
+                var item = $(".CONTENT", group);
+                item.replaceWith("<div class='groupItems'>");
+                this.groupTemplate = $('<div>').append(group).html();
+            }
+            this.itemTemplate = $('<div>').append($('.CONTENT', this.template).clone().removeClass("CONTENT")).html();
             this.template.html("");
 
             var self = this;
@@ -295,7 +355,7 @@
                     }
                     if (!$(this).hasClass("selected"))
                     {
-                        self.template.children(".selectListItem.selected").removeClass("selected");
+                        $(".selectListItem.selected", self.template).removeClass("selected");
                         prettySelect.selectItem($(this));
                     }
                 }
@@ -328,39 +388,58 @@
 
         searchList.prototype.filter = settings.listFilterHandler;
 
-        searchList.prototype.fillList = function (values, search) {
+        searchList.prototype.fillList = function (values, search, group) {
             var prettySelect = this.prettySelect;
             var disabled = prettySelect.disabled;
             var template = this.template;
-            var valuesTemp = prettySelect.values;
-            for (var attrname in values) {
-                valuesTemp[attrname] = values[attrname];
+            if (typeof group == 'undefined')
+            {
+                var valuesTemp = prettySelect.values;
+                for (var attrname in values) {
+                    valuesTemp[attrname] = values[attrname];
+                }
+                values = valuesTemp;
+                template.html("<div class='noItems'>No more items</div>");
+            } else {
+                values = group.values;
             }
-            values = valuesTemp;
-            template.html("<div class='noItems'>No more items</div>");
             var selected = prettySelect.selected;
             var items = $();
             for (var value in values)
             {
-                var content = values[value];
-                var matches = this.filter(search, content);
-                if (matches)
+                if (values[value] instanceof optGroup)
                 {
-                    var item = this.listItem(value);
-                    var isSelected = ($.inArray(value.toString(), selected) != -1);
-                    var isDisabled = ($.inArray(value, disabled) != -1 || (typeof content.disabled !== 'undefined' && content.disabled == true));
-                    if (isSelected)
-                    {
-                        item.addClass("selected");
-                    }
-                    if (isDisabled)
-                    {
-                        item.addClass("disabled");
-                    }
+                    var item = this.fillList(values, search, values[value]);
                     items = items.add(item);
+                } else {
+                    var content = values[value];
+                    var matches = this.filter(search, content);
+                    if (matches)
+                    {
+                        var item = this.listItem(value);
+                        var isSelected = ($.inArray(value.toString(), selected) != -1);
+                        var isDisabled = ($.inArray(value, disabled) != -1 || (typeof content.disabled !== 'undefined' && content.disabled == true));
+                        if (isSelected)
+                        {
+                            item.addClass("selected");
+                        }
+                        if (isDisabled)
+                        {
+                            item.addClass("disabled");
+                        }
+                        items = items.add(item);
+                    }
                 }
             }
-            $(template).append(items);
+            if (typeof group == 'undefined')
+            {
+                $(template).append(items);
+            } else {
+                var el = $(this.groupTemplate);
+                $(".groupItems", el).append(items);
+                el.prepend($("<span class='groupLabel'>").text(group.title));
+                return el;
+            }
         };
 
         searchList.prototype.listItem = function (value) {
@@ -368,8 +447,8 @@
             item.addClass("selectListItem").removeClass("CONTENT");
             item.attr("id", "i" + value);
             item.val(value);
-            var option = this.prettySelect.values[value];
-            var content = settings.listItemContent(option);
+            var option = this.prettySelect.optionsData[value];
+            var content = settings.listItemContent(option.content);
             var replace = $(".CONTENT", item);
             if (replace.length == 0)
             {
@@ -388,6 +467,7 @@
             this.multiple = (typeof this.selectBox.attr("multiple") != "undefined");
             this.placeholder = "search";
             this.values = {};
+            this.optionsData = {};
             this.selected = [];
             this.disabled = [];
             this.optionsHandler = settings.optionsHandler;
@@ -432,10 +512,12 @@
             }
         };
 
-        prettySelect.prototype.addOptions = function (options) {
+        function addOptions(options) {
             var optionsTemp = {};
+            var optionsTempData = {};
             var max = 1;
             var values = this.values;
+            var data = this.optionsData;
             if (options.constructor === Array)
             {
                 var isJson = true;
@@ -452,33 +534,41 @@
                         if (typeof json.id !== 'undefined')
                         {
                             optionsTemp[json.id] = json;
+                            optionsTempData[json.id] = new optionData(json.id, json);
                         } else if (typeof json.value !== 'undefined') {
                             optionsTemp[json.value] = json;
+                            optionsTempData[json.value] = new optionData(json.value, json);
                         } else {
                             do {
-                                if (typeof values[max] !== 'undefined')
+                                if (typeof data[max] !== 'undefined')
                                 {
                                     max++;
                                 } else {
                                     optionsTemp[max] = json;
+                                    optionsTempData[max] = new optionData(max, json);
                                     max++;
                                 }
                             } while (true);
                         }
                     } else {
                         do {
-                            if (typeof values[max] !== 'undefined')
+                            if (typeof data[max] !== 'undefined')
                             {
                                 max++;
                             } else {
                                 optionsTemp[max] = options[i];
+                                optionsTempData[max] = new optionData(max, options[i]);
                                 max++;
                             }
                         } while (true);
                     }
                 }
             } else if (options !== null && typeof options === 'object') {
-                optionsTemp = options;
+                for(var val in options)
+                {
+                    optionsTemp[val] = options[val];
+                    optionsTempData[val] = new optionData(val,options[val]);
+                }
             } else {
                 do {
                     if (typeof values[max] !== 'undefined')
@@ -486,16 +576,47 @@
                         max++;
                     } else {
                         optionsTemp[max] = options;
+                        optionsTempData[max] = new optionData(max, options);
                         max++;
                     }
                 } while (true);
             }
             $.extend(values, optionsTemp);
-        };
+            $.extend(data, optionsTempData);
+        }
+        ;
+
+        optGroup.prototype.addOptions = addOptions;
+        prettySelect.prototype.addOptions = addOptions;
+
+        function addGroup(group) {
+            var values = this.values;
+            if (typeof group.id == 'undefined')
+            {
+                var max = 1;
+                do {
+                    if (typeof values["GROUP" + max] !== 'undefined')
+                    {
+                        max++;
+                    } else {
+                        group.id = max;
+                        values["GROUP" + max] = group;
+                        max++;
+                    }
+                } while (true);
+            } else {
+                values["GROUP" + group.id] = group;
+            }
+        }
+        ;
+
+        optGroup.prototype.addGroup = addGroup;
+        prettySelect.prototype.addGroup = addGroup;
 
         prettySelect.prototype.select = function (selected) {
             var parent = this.selectBox;
             var values = this.values;
+            var data = this.optionsData;
             if (Object.prototype.toString.call(selected) !== '[object Array]')
             {
                 selected = [selected];
@@ -533,7 +654,7 @@
                 if ($("option[value='" + value + "']", parent).length == 0)
                 {
                     var option = $("<option selected>");
-                    var content = JSON.stringify(values[value]);
+                    var content = JSON.stringify(data[value]);
                     option.val(value).text(content);
                     $(parent).append(option);
                 }
@@ -581,8 +702,6 @@
             var self = this;
             $(items).each(function () {
                 var value = $(this).val();
-                var text = self.values[value];
-                self.values[value] = text;
                 if (self.searchEnabled)
                 {
                     self.select(value);
@@ -610,7 +729,7 @@
                 this.disabled.push(value);//.splice(pos, 1);
             }
         };
-        
+
         prettySelect.prototype.enableOption = function (option) {
             var value = $(option).val();
             var pos = $.inArray(value.toString(), this.disabled);
@@ -683,22 +802,26 @@
 
         function filterList(search, text)
         {
-            text = text.toLowerCase();
-            search = search.toLowerCase();
-            if (search == "")
-            {
-                return true;
-            }
-            search = search.split(/[\s,]+/);
-            var matches = false;
-            var len = search.length;
-            for (var i = 0; i < len; i++)
-            {
-                if (search[i].trim() != "" && text.indexOf(search[i]) != -1)
+            try {
+                text = text.toLowerCase();
+                search = search.toLowerCase();
+                if (search == "")
                 {
-                    matches = true;
-                    break;
+                    return true;
                 }
+                search = search.split(/[\s,]+/);
+                var matches = false;
+                var len = search.length;
+                for (var i = 0; i < len; i++)
+                {
+                    if (search[i].trim() != "" && text.indexOf(search[i]) != -1)
+                    {
+                        matches = true;
+                        break;
+                    }
+                }
+            } catch (e) {
+                return false;
             }
             return matches;
         }
@@ -760,29 +883,63 @@
                         }
                         var object = new prettySelect(this);
 
-                        var options = $("option", this);
+                        var options = $("optgroup, > option", this);
                         var values = {};
+                        var data = {};
                         var selected = [];
                         var disabled = [];
+                        var max = 1;
                         options.each(function () {
-                            var val = $(this).val();
-                            var text = $(this).text()
-                            if (val.toString() == "" || val == null)
+                            if ($(this).is("optgroup"))
                             {
-                                object.placeholder = text;
+                                var id = $(this).data("id");
+                                if (typeof id == 'undefined')
+                                {
+                                    id = max;
+                                    max++;
+                                }
+                                var title = $(this).attr("label");
+                                var group = new optGroup(object, id, title);
+                                var opt = {};
+                                $("option", this).each(function () {
+                                    var val = $(this).val();
+                                    var text = $(this).text()
+                                    if ($(this).is(":selected"))
+                                    {
+                                        selected.push(val);
+                                    }
+                                    if ($(this).is(":disabled"))
+                                    {
+                                        disabled.push(val);
+                                    }
+                                    opt[val] = text;
+                                    data[val] = new optionData(val, text, group);
+                                });
+                                group.addOptions(opt);
+
+                                values["GROUP" + id] = group;
                             } else {
-                                if ($(this).is(":selected"))
+                                var val = $(this).val();
+                                var text = $(this).text()
+                                if (val.toString() == "" || val == null)
                                 {
-                                    selected.push(val);
+                                    object.placeholder = text;
+                                } else {
+                                    if ($(this).is(":selected"))
+                                    {
+                                        selected.push(val);
+                                    }
+                                    if ($(this).is(":disabled"))
+                                    {
+                                        disabled.push(val);
+                                    }
+                                    values[val] = text;
+                                    data[val] = new optionData(val, text);
                                 }
-                                if ($(this).is(":disabled"))
-                                {
-                                    disabled.push(val);
-                                }
-                                values[val] = text;
                             }
                         });
                         object.addOptions(values);
+                        object.optionsData = data;
                         object.selected = selected;
                         object.disabled = disabled;
                         if ($(this).is(":disabled"))
@@ -790,7 +947,7 @@
                             object.element.addClass("disabled");
                         }
 
-                        if (settings.optionsHandler != null && !settings.searchEnabled)
+                        if (settings.optionsHandler != null)
                         {
                             object.loading(true);
                             $.when(settings.optionsHandler("")).then(function (response) {

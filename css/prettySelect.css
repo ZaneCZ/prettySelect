@@ -121,16 +121,38 @@
     z-index: 1000;
     min-width: 200px;
     min-height: 30px;
+    max-height: 150px;
+    overflow-y: auto;
     color: #333;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 0 0 2px 2px;
+    padding: 4px;
 }
 .prettySelect .selectWrapper .selectList{
     display: none;
 }
 .prettySelect.focused .selectWrapper .selectList{
     display: block;
+}
+
+.prettySelect .selectWrapper .selectGroup{
+    position: relative;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    padding: 8px 4px 4px 8px;
+    border: 1px solid #ccc;
+}
+
+.prettySelect .selectWrapper .selectGroup .groupLabel{
+    font-weight: bold;
+    position: absolute;
+    font-size: 14px;
+    line-height: 14px;
+    top: -10px;
+    left:6px;
+    border: 1px solid #ccc;
+    background-color: #fff;
 }
 
 .prettySelect .selectWrapper .selectList .selectListItem{

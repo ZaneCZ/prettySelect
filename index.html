@@ -234,9 +234,11 @@
                         <div class="col-sm-6">
                             <h2>Simple select</h2>
                             <select class="pretty">
-                                <option value="html">Hypertext Markup Language</option>
-                                <option value="js" selected>Javascript</option>
+                                <optgroup label="Ha">
+                                <option value="html" selected>Hypertext Markup Language</option>
+                                <option value="js">Javascript</option>
                                 <option value="css">Cascading style sheet</option>
+                                </optgroup>
                                 <option value="php">Hypertext Preprocessor</option>
                                 <option value="sql">Structured Query Language</option>
                             </select>
@@ -245,9 +247,11 @@
                             <h2>Multiple select</h2>
                             <select class="pretty" multiple>
                                 <option value="html" selected>Hypertext Markup Language</option>
+                                <optgroup label="Epic">
                                 <option value="js" selected>Javascript</option>
                                 <option value="css">Cascading style sheet</option>
                                 <option value="php">Hypertext Preprocessor</option>
+                                </optgroup>
                                 <option value="sql">Structured Query Language</option>
                             </select>
                         </div>
