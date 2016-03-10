@@ -1,6 +1,6 @@
 //Copyright (c) 2016 ZaneCZ
 //Developed by ZaneCZ under MIT licence
-//v0.8.5
+//v0.9
 
 (function ($) {
     $.propHooks.disabled = {
