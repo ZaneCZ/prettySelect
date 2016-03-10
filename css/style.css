@@ -46,10 +46,26 @@ select{
 
 .expl{
     background-color: #eee;
-    padding: 4px;
+    padding: 8px;
 }
 .expl:nth-child(2n+1){
-    background-color: #fff;
+    background-color: #ddd;
+}
+
+.expl .expl,
+.expl .expl:nth-child(2n+1){
+    margin-top: 8px;
+    background-color: #ddd;
+}
+
+.expl:nth-child(2n+1) .expl,
+.expl:nth-child(2n+1) .expl:nth-child(2n+1){
+    margin-top: 8px;
+    background-color: #eee;
+}
+
+.expl .expl:last-child{
+    margin-bottom: 12px;
 }
 
 .np{
