@@ -387,16 +387,28 @@
                             <div class="expl">
                                 <h4>.OPTIONS <small>gets class selectOptions</small></h4>
                                 <p>Options is a wrapper of all selected options (+ unselected if <code>showAll:true</code>).</p>
-                                <h4>Label <small>gets class selectLabel</small></h4>
-                                <p>First element in <code>.OPTIONS</code> is considered label template.</p>
-                                <p><code>.CONTENT</code> is optional, it gets filled with items from <code>labelContent</code>, if it doesn't exist content gets prepended in the label.</p>
-                                <p><code>.REMOVE</code> is optional, gets appended by class <code>selectRemove</code>.</p>
+                                <div class="expl">
+                                    <h4>.OPTGROUP <small>gets class selectGroup</small></h4>
+                                    <p>Is optional, if exists <code>LABEL</code> is considered template for label elements and also gets replaced by labels wrapper inside optgroup.</p>
+                                </div>
+                                <div class="expl">
+                                    <h4>Label <small>gets class selectLabel</small></h4>
+                                    <p><code>.LABEL</code> is template element for labels. If <code>.OPTGROUP</code> doesn't exist first element in <code>.OPTIONS</code> is considered label template.</p>
+                                    <p><code>.CONTENT</code> is optional, it gets filled with items from <code>labelContent</code>, if it doesn't exist content gets prepended in the label.</p>
+                                    <p><code>.REMOVE</code> is optional, gets appended by class <code>selectRemove</code>.</p>
+                                </div>
                             </div>
                             <div class="expl">
                                 <h4>.SEARCHLIST <small>gets class selectList</small></h4>
                                 <p>This is used as wrapper for search values. Not required if <code>showAll:true</code>.</p>
-                                <h4>.CONTENT <small>gets class selectListItem</small></h4>
-                                <p>Gets filled with content from <code>listItemContent</code>.</p>
+                                <div class='expl'>
+                                    <h4>.OPTGROUP <small>gets class selectGroup</small></h4>
+                                    <p>Is optional, if exists <code>.CONTENT</code> is replaced with options wrapper inside group. <code>.CONTENT</code> is still used as template for options.</p>
+                                </div>
+                                <div class='expl'>
+                                    <h4>.CONTENT <small>gets class selectListItem</small></h4>
+                                    <p>Gets filled with content from <code>listItemContent</code>.</p>
+                                </div>
                             </div>
                             <div class="expl">
                                 <h4>.SEARCHWRAP <small>gets class searchWrap</small></h4>
