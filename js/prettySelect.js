@@ -56,20 +56,39 @@
         var optGroup = function (select, id, title) {
             this.prettySelect = select;
             this.id = id;
+            this.parent = null;
             this.title = title;
             this.values = {};
 
             return this;
         };
-        
-        var optionData = function (value, content, group){
+
+        optGroup.prototype.setParent = function (parent) {
+            this.parent = parent;
+        };
+
+        optGroup.prototype.renderOption = function () {
+            var optionsList = this.prettySelect.optionsList;
+            var el = $(optionsList.groupTemplate).attr("id", "GROUP" + this.id);
+            el.prepend($("<span class='groupLabel'>").text(this.title));
+            return el;
+        };
+
+        optGroup.prototype.renderList = function () {
+            var searchList = this.prettySelect.searchList;
+            var el = $(searchList.groupTemplate);
+            el.prepend($("<span class='groupLabel'>").text(this.title));
+            return el;
+        };
+
+        var optionData = function (value, content, group) {
             this.value = value;
             this.content = content;
             this.group = group;
-            
+
             return this;
         };
-        
+
         var optionsList = function (prettySelect) {
             this.prettySelect = prettySelect;
             this.selected = [];
@@ -144,15 +163,18 @@
                 if (values[value] instanceof optGroup)
                 {
                     var label = this.render(values[value]);
+                    var empty = false;
                 } else {
                     var isSelected = ($.inArray(value, selected) != -1);
                     var isDisabled = ($.inArray(value, disabled) != -1);
                     var label = this.label(value);
+                    var empty = true;
                     if (prettySelect.showAll || !prettySelect.searchEnabled)
                     {
                         if (isSelected)
                         {
                             label.addClass('selected');
+                            empty = false;
                         } else {
                             label.addClass('unselected');
                         }
@@ -166,6 +188,7 @@
                             continue;
                         }
                         label.addClass('selected');
+                        empty = false;
                     }
 
                     if (!(((prettySelect.multiple && !prettySelect.showAll) ||
@@ -186,11 +209,10 @@
                 this.template.append(labels);
                 prettySelect.loading(false);
             } else {
-                if (prettySelect.multiple)
+                if (prettySelect.multiple && !empty)
                 {
-                    var el = $(this.groupTemplate);
+                    var el = group.renderOption();
                     $(".groupItems", el).append(labels);
-                    el.prepend($("<span class='groupLabel'>").text(group.title));
                     return el;
                 } else {
                     return labels;
@@ -435,9 +457,8 @@
             {
                 $(template).append(items);
             } else {
-                var el = $(this.groupTemplate);
+                var el = group.renderList();
                 $(".groupItems", el).append(items);
-                el.prepend($("<span class='groupLabel'>").text(group.title));
                 return el;
             }
         };
@@ -564,10 +585,10 @@
                     }
                 }
             } else if (options !== null && typeof options === 'object') {
-                for(var val in options)
+                for (var val in options)
                 {
                     optionsTemp[val] = options[val];
-                    optionsTempData[val] = new optionData(val,options[val]);
+                    optionsTempData[val] = new optionData(val, options[val]);
                 }
             } else {
                 do {
@@ -613,6 +634,28 @@
         optGroup.prototype.addGroup = addGroup;
         prettySelect.prototype.addGroup = addGroup;
 
+        function renderGroupTree(group, wrap)
+        {
+            var tmp = wrap;
+            if (group.parent !== null)
+            {
+                var tmp = $(".selectGroup#GROUP" + group.parent.id, wrap);
+                if (tmp.length == 0)
+                {
+                    tmp = renderGroupTree(group.parent, wrap);
+                    wrap.append(tmp);
+                }
+            }
+            var groupEl = $(".selectGroup#GROUP" + group.id, tmp);
+            if (groupEl.length == 0)
+            {
+                var el = group.renderOption();
+                tmp.append(el)
+                groupEl = el;
+            }
+            return groupEl;
+        }
+
         prettySelect.prototype.select = function (selected) {
             var parent = this.selectBox;
             var values = this.values;
@@ -650,11 +693,19 @@
                         $(".selectLabel#s" + value, optionsList.template).removeClass("selected");
                     }
                 }
-                optionsList.template.append(label);
+                var group = data[value].group;
+                var tmp = optionsList.template;
+                if (typeof group !== 'undefined' && this.multiple)
+                {
+                    var groupEl = renderGroupTree(group, tmp);
+                    $("> .groupItems", groupEl).append(label);
+                } else {
+                    tmp.append(label);
+                }
                 if ($("option[value='" + value + "']", parent).length == 0)
                 {
                     var option = $("<option selected>");
-                    var content = JSON.stringify(data[value]);
+                    var content = JSON.stringify(option.content);
                     option.val(value).text(content);
                     $(parent).append(option);
                 }
@@ -667,10 +718,28 @@
             }
         };
 
+        function destroyGroupTree(group, wrap)
+        {
+            if (typeof group !== 'undefined')
+            {
+                var children = $(".selectLabel, .selectGroup",wrap);
+                var parent = wrap.parent().closest(".selectGroup");
+                if(children.length == 0)
+                {
+                    wrap.remove()
+                }
+                if(group.parent !== null)
+                {
+                    destroyGroupTree(group.parent, parent);
+                }
+            }
+        }
+
         prettySelect.prototype.unselect = function (items) {
             var parent = this.selectBox;
             var self = this;
             var changeState = $();
+            var data = this.optionsData;
             $(items).each(function () {
                 var value = $(this).val();
                 var pos = $.inArray(value.toString(), self.selected);
@@ -679,12 +748,15 @@
                     self.selected.splice(pos, 1);
                 }
                 $('option[value="' + value + '"]', parent).prop("selected", false);
-                var label = self.optionsList.template.children('.selectLabel#s' + value);
-                var searchItem = self.searchList.template.children('.selectListItem#i' + value);
+                var label = $('.selectLabel#s' + value, self.optionsList.template);
+                var searchItem = $('.selectListItem#i' + value, self.searchList.template);
                 changeState = changeState.add(label).add(searchItem);
                 if (self.searchEnabled)
                 {
+                    var gr = data[value].group;
+                    var wrap = label.closest(".selectGroup");
                     label.remove();
+                    destroyGroupTree(gr, wrap);
                 } else {
                     label.removeClass("selected").addClass("unselected");
                 }
@@ -717,6 +789,7 @@
             });
             $(items).removeClass("unselected").addClass("selected");
             parent.trigger("change");
+            parent.trigger("select");
         };
 
         prettySelect.prototype.disableOption = function (option) {
@@ -889,6 +962,9 @@
                         var selected = [];
                         var disabled = [];
                         var max = 1;
+
+                        var groups = {};
+
                         options.each(function () {
                             if ($(this).is("optgroup"))
                             {
@@ -900,6 +976,15 @@
                                 }
                                 var title = $(this).attr("label");
                                 var group = new optGroup(object, id, title);
+                                groups[id] = group;
+                                var parent = $(this).data("parent");
+                                if (typeof parent == 'undefined')
+                                {
+                                    values["GROUP" + id] = group;
+                                } else {
+                                    groups[parent].values["GROUP" + id] = group;
+                                    group.setParent(groups[parent]);
+                                }
                                 var opt = {};
                                 $("option", this).each(function () {
                                     var val = $(this).val();
@@ -916,8 +1001,6 @@
                                     data[val] = new optionData(val, text, group);
                                 });
                                 group.addOptions(opt);
-
-                                values["GROUP" + id] = group;
                             } else {
                                 var val = $(this).val();
                                 var text = $(this).text()

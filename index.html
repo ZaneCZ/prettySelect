@@ -247,12 +247,14 @@
                             <h2>Multiple select</h2>
                             <select class="pretty" multiple>
                                 <option value="html" selected>Hypertext Markup Language</option>
-                                <optgroup label="Epic">
-                                <option value="js" selected>Javascript</option>
+                                <optgroup label="Epic" data-id="YO">
+                                <option value="js">Javascript</option>
                                 <option value="css">Cascading style sheet</option>
-                                <option value="php">Hypertext Preprocessor</option>
+                                <option value="php" selected>Hypertext Preprocessor</option>
                                 </optgroup>
-                                <option value="sql">Structured Query Language</option>
+                                <optgroup label="Child" data-parent="YO">
+                                <option value="sql" selected>Structured Query Language</option>
+                                </optgroup>
                             </select>
                         </div>
                     </div>
@@ -708,5 +710,6 @@ $(&quot;select&quot;).prettySelect({
                     </div>
                 </div>
             </div>
+        </div>
     </body>
 </html>
