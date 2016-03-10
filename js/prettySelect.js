@@ -158,11 +158,12 @@
             var selected = prettySelect.selected;
             var disabled = prettySelect.disabled;
             var labels = $();
+            var groups = $();
             for (var value in values)
             {
                 if (values[value] instanceof optGroup)
                 {
-                    var label = this.render(values[value]);
+                    groups = groups.add(this.render(values[value]));
                     var empty = false;
                 } else {
                     var isSelected = ($.inArray(value, selected) != -1);
@@ -201,17 +202,19 @@
                             $(".selectLabel#s" + value, this.template).removeClass("selected");
                         }
                     }
+                    labels = labels.add(label);
                 }
-                labels = labels.add(label);
             }
             if (typeof group == 'undefined')
             {
+                this.template.append(groups);
                 this.template.append(labels);
                 prettySelect.loading(false);
             } else {
                 if (prettySelect.multiple && !empty)
                 {
                     var el = group.renderOption();
+                    $(el).append(groups);
                     $(".groupItems", el).append(labels);
                     return el;
                 } else {
