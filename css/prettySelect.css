@@ -73,7 +73,7 @@
     position: relative;
 }
 
-.prettySelect.multiple .selectWrapper .selectSearch{
+.prettySelect.showAll .selectWrapper .selectSearch{
     transition: width 0.5s;
 }
 .prettySelect .selectWrapper .selectSearch{

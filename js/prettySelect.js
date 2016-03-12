@@ -1,6 +1,6 @@
 //Copyright (c) 2016 ZaneCZ
 //Developed by ZaneCZ under MIT licence
-//v0.9
+//v0.9.1
 
 (function ($) {
     $.propHooks.disabled = {
@@ -29,7 +29,10 @@
             <div class="CONTENT"></div>\
         </div>\
     </div>\
-    <div class="SEARCHWRAP"><input class="SEARCH"><span class="glyphicon glyphicon-search"></span></div>\
+    <div class="SEARCHWRAP">\
+        <input class="SEARCH">\
+        <span class="glyphicon glyphicon-search"></span>\
+    </div>\
 </div>';
 
         var settings = {
@@ -43,7 +46,9 @@
             searchEnabled: true,
             searchDebounce: 150,
             allowDeselect: false,
-            showAll: false
+            showAll: false,
+            addItemForm: null,
+            addItemHandler: null
         };
 
         if (typeof options == 'object')
@@ -52,6 +57,14 @@
         } else {
             settings.action = options;
         }
+
+        var addButton = function (select) {
+            this.prettySelect = select;
+            var tmp = select.element;
+
+
+            this.handler = settings.addHandler;
+        };
 
         var optGroup = function (select, id, title) {
             this.prettySelect = select;
@@ -175,7 +188,6 @@
                         if (isSelected)
                         {
                             label.addClass('selected');
-                            empty = false;
                         } else {
                             label.addClass('unselected');
                         }
@@ -183,6 +195,7 @@
                         {
                             label.addClass('disabled');
                         }
+                        empty = false;
                     } else {
                         if (!isSelected)
                         {
@@ -211,7 +224,7 @@
                 this.template.append(labels);
                 prettySelect.loading(false);
             } else {
-                if (prettySelect.multiple && !empty)
+                if ((prettySelect.multiple || prettySelect.showAll || !prettySelect.searchEnabled) && !empty)
                 {
                     var el = group.renderOption();
                     $(el).append(groups);
@@ -230,7 +243,7 @@
 
             var remove = $(".REMOVE", label);
             if (((prettySelect.multiple && !prettySelect.showAll) ||
-                    (!prettySelect.multiple && prettySelect.allowDeselect)) && prettySelect.searchEnabled)
+                    (!prettySelect.multiple && prettySelect.allowDeselect && !prettySelect.showAll)) && prettySelect.searchEnabled)
             {
                 remove.removeClass("REMOVE").addClass("selectRemove");
             } else {
@@ -268,6 +281,10 @@
                     self.setPlaceholder();
                     el.addClass("focused");
                 }
+            });
+            $(prettySelect.selectBox).on("focus", function (e) {
+                e.preventDefault();
+                self.searchbar.focus();
             });
 
             this.value = "";
@@ -504,6 +521,7 @@
             this.wrapper = $(".WRAPPER", this.element).addClass("selectWrapper").removeClass("WRAPPER");
             this.optionsList = new optionsList(this);
             this.searchWrap = new searchWrap(this);
+            this.addButton = new addButton(this);
             this.searchList = new searchList(this);
 
             var self = this;
@@ -677,6 +695,7 @@
 
             var search = this.searchEnabled;
             var optionsList = this.optionsList;
+            var searchList = this.searchList;
             for (var i = 0; i < selected.length; i++)
             {
                 var value = selected[i];
@@ -689,21 +708,28 @@
                 }
                 if (!this.multiple)
                 {
-                    if (search)
+                    if (search && !this.showAll)
                     {
                         $(".selectLabel", optionsList.template).remove();
-                    } else {
-                        $(".selectLabel#s" + value, optionsList.template).removeClass("selected");
                     }
+                    $(".selectLabel.selected", optionsList.template).removeClass("selected").addClass("unselected");
+                    $(".selectListItem.selected", searchList.template).removeClass("selected");
                 }
+                $(".selectListItem#i" + value, searchList.template).addClass("selected");
                 var group = data[value].group;
                 var tmp = optionsList.template;
-                if (typeof group !== 'undefined' && this.multiple)
+                var exists = ($('.selectLabel#s' + value, optionsList.template).length !== 0);
+                if (exists)
                 {
-                    var groupEl = renderGroupTree(group, tmp);
-                    $("> .groupItems", groupEl).append(label);
-                } else {
-                    tmp.append(label);
+                    $(".selectLabel#s" + value, optionsList.template).removeClass("unselected").addClass("selected");
+                }else{
+                    if (typeof group !== 'undefined' && this.multiple)
+                    {
+                        var groupEl = renderGroupTree(group, tmp);
+                        $("> .groupItems", groupEl).append(label);
+                    } else {
+                        tmp.append(label);
+                    }
                 }
                 if ($("option[value='" + value + "']", parent).length == 0)
                 {
@@ -725,13 +751,13 @@
         {
             if (typeof group !== 'undefined')
             {
-                var children = $(".selectLabel, .selectGroup",wrap);
+                var children = $(".selectLabel, .selectGroup", wrap);
                 var parent = wrap.parent().closest(".selectGroup");
-                if(children.length == 0)
+                if (children.length == 0)
                 {
                     wrap.remove()
                 }
-                if(group.parent !== null)
+                if (group.parent !== null)
                 {
                     destroyGroupTree(group.parent, parent);
                 }
@@ -754,7 +780,7 @@
                 var label = $('.selectLabel#s' + value, self.optionsList.template);
                 var searchItem = $('.selectListItem#i' + value, self.searchList.template);
                 changeState = changeState.add(label).add(searchItem);
-                if (self.searchEnabled)
+                if (self.searchEnabled && !self.showAll)
                 {
                     var gr = data[value].group;
                     var wrap = label.closest(".selectGroup");
@@ -777,7 +803,7 @@
             var self = this;
             $(items).each(function () {
                 var value = $(this).val();
-                if (self.searchEnabled)
+                if (self.searchEnabled || self.showAll)
                 {
                     self.select(value);
                 } else {
@@ -868,9 +894,9 @@
 
             $(el).insertAfter(this.selectBox);
 
-            if (this.multiple)
+            if (this.multiple || this.showAll)
             {
-                el.addClass("multiple");
+                el.addClass("showAll");
             } else {
                 el.addClass("simple");
             }
