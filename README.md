@@ -1,4 +1,4 @@
-# Pretty Select v0.9
+# Pretty Select v1.0
 
 ### Documentation and examples can be found on [zanecz.github.io/prettySelect/](http://zanecz.github.io/prettySelect/)
 
@@ -46,3 +46,6 @@ From v0.8.5 it is possible to pass in disabled values.
 
 #### Optgroups support
 From v0.9 optgroups are supported.
+
+#### Add button
+From v1.0 extension of options in runtime is possible. Easy to use, great for administration parts.
