@@ -73,6 +73,7 @@
     position: relative;
 }
 
+.prettySelect.multiple .selectWrapper .selectSearch,
 .prettySelect.showAll .selectWrapper .selectSearch{
     transition: width 0.5s;
 }
@@ -103,7 +104,7 @@
 .prettySelect .selectWrapper .selectLabel.unselected{
     background-color: #ccc;
 }
-.prettySelect.simple.focused .selectWrapper .selectLabel{
+.prettySelect.simple.focused:not(.showAll) .selectWrapper .selectLabel{
     display:none;
 }
 
@@ -120,6 +121,8 @@
     left: 0;
     z-index: 1000;
     min-width: 200px;
+    width: auto;
+    max-width: 100%;
     min-height: 30px;
     max-height: 150px;
     overflow-y: auto;
@@ -129,6 +132,14 @@
     border-radius: 0 0 2px 2px;
     padding: 4px;
 }
+
+.prettySelect .selectList .selectAddButton{
+    width: 100%;
+    display: block;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
 .prettySelect .selectWrapper .selectList{
     display: none;
 }
@@ -142,6 +153,9 @@
     margin-bottom: 6px;
     padding: 8px 4px 4px 8px;
     border: 1px solid #ccc;
+    display: inline-block;
+    width: 100%;
+    float: left;
 }
 
 .prettySelect .selectWrapper .selectGroup .groupLabel{
@@ -157,6 +171,10 @@
 
 .prettySelect .selectWrapper .selectList .selectListItem{
     cursor: pointer;
+    display: inline-block;
+    clear: both;
+    float: left;
+    width: 100%;
 }
 
 .prettySelect .selectWrapper .selectList .selectListItem.selected{

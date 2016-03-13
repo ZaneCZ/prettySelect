@@ -1,6 +1,6 @@
 //Copyright (c) 2016 ZaneCZ
 //Developed by ZaneCZ under MIT licence
-//v0.9.1
+//v1.0
 
 (function ($) {
     $.propHooks.disabled = {
@@ -47,8 +47,10 @@
             searchDebounce: 150,
             allowDeselect: false,
             showAll: false,
-            addItemForm: null,
-            addItemHandler: null
+            addButton: false,
+            addButtonTemplate: "<div class='btn btn-default'>Add \"<b class='CONTENT'></b>\" option.</div>",
+            addOptionForm: null,
+            addOptionHandler: addNewOption
         };
 
         if (typeof options == 'object')
@@ -60,11 +62,102 @@
 
         var addButton = function (select) {
             this.prettySelect = select;
-            var tmp = select.element;
+            this.template = $(settings.addButtonTemplate).addClass("selectAddButton");
+            this.value = "";
+            this.content = $(".CONTENT", this.template).removeClass("CONTENT");
 
+            var search = this.prettySelect.searchWrap.searchbar;
+            var self = this;
 
-            this.handler = settings.addHandler;
+            self.updateContent();
+            search.on("input", function () {
+                self.updateContent();
+            });
+
+            search.on("keypress", function (e) {
+                if (e.keyCode == 13)
+                {
+                    self.template.trigger("click");
+                }
+            });
+
+            if (settings.addOptionForm != null)
+            {
+                this.form = $(settings.addOptionForm);
+                this.form.on("submit", function (e) {
+                    e.preventDefault();
+                    var valuesRaw = $(this).serializeArray();
+                    var values = {};
+                    for (var i = 0; i < valuesRaw.length; i++)
+                    {
+                        var name = valuesRaw[i]["name"];
+                        var value = valuesRaw[i]["value"];
+                        values[name] = value;
+                    }
+                    self.addOption(values);
+                    select.selectBox.trigger("prettySelect.hideForm");
+                });
+            }
+            this.handler = settings.addOptionHandler;
+
+            var list = select.searchList.template;
+            list.on("click", ".selectAddButton", function () {
+                if (typeof self.form == "undefined")
+                {
+                    self.addOption(self.value);
+                } else {
+                    select.selectBox.trigger("prettySelect.showForm", self.value);
+                }
+            });
         };
+
+        addButton.prototype.addOption = function (value) {
+            var prettySelect = this.prettySelect;
+            var data = prettySelect.optionsData;
+            var self = this;
+
+            var searchbar = prettySelect.searchWrap.searchbar;
+            searchbar.prop("disabled", true);
+            $.when(self.handler(value, data)).then(function (response) {
+                var newOption = {};
+                response = response.toString();
+                newOption[response] = value;
+                prettySelect.addOptions(newOption);
+                prettySelect.select(response);
+                searchbar.val("");
+                searchbar.trigger("change").trigger("input").trigger("keydown").trigger("keypress").trigger("keyup");
+                prettySelect.selectBox.trigger("change").trigger("change");
+            }).always(function () {
+                searchbar.prop("disabled", false);
+                searchbar.focus();
+            });
+        };
+
+        function addNewOption(value, options) {
+            var max = 1;
+            while (true) {
+                if (typeof options[max] == 'undefined')
+                {
+                    return max;
+                } else {
+                    max++;
+                }
+            }
+            ;
+        }
+
+        addButton.prototype.updateContent = function () {
+            var search = this.prettySelect.searchWrap.searchbar;
+            var content = search.val().trim();
+            this.value = content;
+            if (content == "")
+            {
+                this.template.addClass("is-empty");
+            } else {
+                this.template.removeClass("is-empty");
+            }
+            this.content.text(content);
+        }
 
         var optGroup = function (select, id, title) {
             this.prettySelect = select;
@@ -270,9 +363,12 @@
 
             var self = this;
 
-            $(input).on("keyup", function () {
-                self.searchKeyUp(this);
-            });
+            if (prettySelect.searchEnabled)
+            {
+                $(input).on("keyup", function () {
+                    self.searchKeyUp(this);
+                });
+            }
 
             $(input).on("focus", function () {
                 var el = prettySelect.element;
@@ -441,45 +537,67 @@
                     valuesTemp[attrname] = values[attrname];
                 }
                 values = valuesTemp;
-                template.html("<div class='noItems'>No more items</div>");
+                template.html("");
+                if (prettySelect.hasAddBtn)
+                {
+                    template.append(prettySelect.addButton.template);
+                }
+                if (prettySelect.searchEnabled)
+                {
+                    template.append("<div class='noItems'>No items found</div>");
+                }
             } else {
                 values = group.values;
             }
-            var selected = prettySelect.selected;
-            var items = $();
-            for (var value in values)
+            if (prettySelect.searchEnabled)
             {
-                if (values[value] instanceof optGroup)
+                var selected = prettySelect.selected;
+                var items = $();
+                empty = true;
+                for (var value in values)
                 {
-                    var item = this.fillList(values, search, values[value]);
-                    items = items.add(item);
-                } else {
-                    var content = values[value];
-                    var matches = this.filter(search, content);
-                    if (matches)
+                    if (values[value] instanceof optGroup)
                     {
-                        var item = this.listItem(value);
-                        var isSelected = ($.inArray(value.toString(), selected) != -1);
-                        var isDisabled = ($.inArray(value, disabled) != -1 || (typeof content.disabled !== 'undefined' && content.disabled == true));
-                        if (isSelected)
+                        var item = this.fillList(values, search, values[value]);
+                        if(item != false)
                         {
-                            item.addClass("selected");
+                            items = items.add(item);
+                            empty = false;
                         }
-                        if (isDisabled)
+                    } else {
+                        var content = values[value];
+                        var matches = this.filter(search, content);
+                        if (matches)
                         {
-                            item.addClass("disabled");
+                            var item = this.listItem(value);
+                            var isSelected = ($.inArray(value.toString(), selected) != -1);
+                            var isDisabled = ($.inArray(value, disabled) != -1 || (typeof content.disabled !== 'undefined' && content.disabled == true));
+                            if (isSelected)
+                            {
+                                item.addClass("selected");
+                            }
+                            if (isDisabled)
+                            {
+                                item.addClass("disabled");
+                            }
+                            items = items.add(item);
+                            var empty = false;
                         }
-                        items = items.add(item);
                     }
                 }
-            }
-            if (typeof group == 'undefined')
-            {
-                $(template).append(items);
-            } else {
-                var el = group.renderList();
-                $(".groupItems", el).append(items);
-                return el;
+                if (typeof group == 'undefined')
+                {
+                    $(template).append(items);
+                } else {
+                    if(empty)
+                    {
+                        return false;
+                    }else{
+                        var el = group.renderList();
+                        $(".groupItems", el).append(items);
+                        return el;
+                    }
+                }
             }
         };
 
@@ -506,7 +624,6 @@
             this.selectBox.css("display", "none");
 
             this.multiple = (typeof this.selectBox.attr("multiple") != "undefined");
-            this.placeholder = "search";
             this.values = {};
             this.optionsData = {};
             this.selected = [];
@@ -516,13 +633,32 @@
             this.searchEnabled = settings.searchEnabled;
             this.showAll = settings.showAll;
             this.allowDeselect = settings.allowDeselect;
+            this.hasAddBtn = settings.addButton;
+            if (this.hasAddBtn)
+            {
+                this.placeholder = "add option";
+            }
+            if (this.searchEnabled)
+            {
+                this.placeholder = "search";
+            }
+            if(this.hasAddBtn && this.searchEnabled)
+            {
+                this.placeholder = "search or add";
+            }
 
             this.element = $("<div class='prettySelect'>").html(settings.template);
             this.wrapper = $(".WRAPPER", this.element).addClass("selectWrapper").removeClass("WRAPPER");
             this.optionsList = new optionsList(this);
-            this.searchWrap = new searchWrap(this);
-            this.addButton = new addButton(this);
-            this.searchList = new searchList(this);
+            if (this.searchEnabled || this.hasAddBtn)
+            {
+                this.searchWrap = new searchWrap(this);
+                this.searchList = new searchList(this);
+                if (this.hasAddBtn)
+                {
+                    this.addButton = new addButton(this);
+                }
+            }
 
             var self = this;
             $(select).on("disabled", function () {
@@ -683,7 +819,7 @@
             var data = this.optionsData;
             if (Object.prototype.toString.call(selected) !== '[object Array]')
             {
-                selected = [selected];
+                selected = [selected.toString()];
             }
             if (this.multiple)
             {
@@ -722,7 +858,7 @@
                 if (exists)
                 {
                     $(".selectLabel#s" + value, optionsList.template).removeClass("unselected").addClass("selected");
-                }else{
+                } else {
                     if (typeof group !== 'undefined' && this.multiple)
                     {
                         var groupEl = renderGroupTree(group, tmp);
@@ -848,7 +984,7 @@
 
             var el = this.element;
 
-            if (this.searchEnabled)
+            if (this.searchEnabled || this.hasAddBtn)
             {
                 var searchList = $(".SEARCHLIST", template);
                 searchList.addClass("selectList").removeClass("SEARCHLIST");
@@ -894,11 +1030,15 @@
 
             $(el).insertAfter(this.selectBox);
 
-            if (this.multiple || this.showAll)
+            if (this.multiple)
             {
-                el.addClass("showAll");
+                el.addClass("multiple");
             } else {
                 el.addClass("simple");
+            }
+            if (this.showAll || !this.searchEnabled)
+            {
+                el.addClass("showAll");
             }
         };
 
@@ -949,7 +1089,7 @@
                 existsAny = true;
             }
         });
-        if (action == "options" || existsAny)
+        if (action == "options" && existsAny)
         {
             var values = [];
             this.each(function () {
@@ -961,6 +1101,33 @@
                     values.push(null);
                 }
             });
+            if(values.length == 1)
+            {
+                return values[0];
+            }
+            return values;
+        }
+        if (action == "value" && existsAny) {
+            var values = [];
+            this.each(function () {
+                if (exists(this))
+                {
+                    var object = this.psData;
+                    var selected = {};
+                    for (var i = 0; i<object.selected.length; i++)
+                    {
+                        var value = object.selected[i];
+                        selected[value] = object.optionsData[value].content;
+                    }
+                    values.push(selected);
+                } else {
+                    values.push(null);
+                }
+            });
+            if(values.length == 1)
+            {
+                return values[0];
+            }
             return values;
         } else {
             return this.each(function () {
@@ -1017,7 +1184,7 @@
                                 var opt = {};
                                 $("option", this).each(function () {
                                     var val = $(this).val();
-                                    var text = $(this).text()
+                                    var text = $(this).text();
                                     if ($(this).is(":selected"))
                                     {
                                         selected.push(val);
@@ -1026,6 +1193,9 @@
                                     {
                                         disabled.push(val);
                                     }
+                                    try{
+                                        text = JSON.parse(text);
+                                    }catch(e){}
                                     opt[val] = text;
                                     data[val] = new optionData(val, text, group);
                                 });
@@ -1045,6 +1215,9 @@
                                     {
                                         disabled.push(val);
                                     }
+                                    try{
+                                        text = JSON.parse(text);
+                                    }catch(e){}
                                     values[val] = text;
                                     data[val] = new optionData(val, text);
                                 }
