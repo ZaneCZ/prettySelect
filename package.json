@@ -1,0 +1,34 @@
+{
+  "name": "prettyselect",
+  "version": "1.0.0",
+  "description": "Simple jQuery plugin for expanding select boxes features and templating.",
+  "main": "js/prettySelect.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZaneCZ/prettySelect.git"
+  },
+  "keywords": [
+    "selectbox",
+    "select",
+    "box",
+    "jQuery",
+    "template",
+    "templating",
+    "search",
+    "AJAX",
+    "pretty",
+    "select"
+  ],
+  "author": "ZaneCZ",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ZaneCZ/prettySelect/issues"
+  },
+  "homepage": "http://zanecz.github.io/prettySelect/",
+  "dependencies": {
+    "jquery": "^2.1.4"
+  }
+}
